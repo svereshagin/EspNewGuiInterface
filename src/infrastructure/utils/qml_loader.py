@@ -1,15 +1,25 @@
 import os
 
+from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QWidget
+from PySide6.QtCore import QUrl
+from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtGui import QFontDatabase, QIcon
-from PySide6.QtWidgets import QMainWindow
+
+
+
 
 
 class TSPIoTQmlLoader(QMainWindow):
+
+    __BASE_RESOURCE_QML_NAME = "base.qml"
+
     def __init__(self,
                  window_size: tuple,
                  app_icon_path: str,
                  header_name: str,
-                 fonts_path: str
+                 fonts_path: str,
+                 use_compiled_resources: bool,
+                 qml_file: str
                  ):
         """
         Args:
@@ -17,20 +27,24 @@ class TSPIoTQmlLoader(QMainWindow):
                        Если None - шрифты не загружаются
         """
         super().__init__()
+
+
         self.app_icon_path = app_icon_path
         self.header_name = header_name
         self.window_size = window_size
+        self.use_compiled_resources = use_compiled_resources
+        self.qml_base_file = qml_file  # "Gadget.ui.qml" <- основной qml файл
+
 
         #подгружаем стили
-        if fonts_path:
-            self.__load_fonts(fonts_path)
+        self.__load_fonts(fonts_path)
 
         #запрещаем растягивание окна
         self.setFixedSize(window_size[0], window_size[1])
-        self.__load_fonts(fonts_path)
+
         self.__set_header()
         self.__set_app_icon()
-
+        self.__load_qml_file()
 
 
     def __set_app_icon(self):
@@ -62,5 +76,50 @@ class TSPIoTQmlLoader(QMainWindow):
                 else:
                     print(f"  Ошибка загрузки: {font_file}")
 
-    def __load_qml_file(self, qml_file_path):
-        ...
+
+    def __load_qml_file(self):
+        """Загружает QML файл"""
+        # Создаем центральный виджет
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+
+        # Создаем layout
+        layout = QVBoxLayout(central_widget)
+        layout.setContentsMargins(0, 0, 0, 0)  # Убираем отступы
+
+        # Создаем виджет для QML
+        self.quick_widget = QQuickWidget()
+
+        # Получаем URL для загрузки
+        qml_url = self.__get_qml_url()
+        print(f"📁 Загрузка QML из: {qml_url.toString()}")
+
+        # Загружаем QML
+        self.quick_widget.setSource(qml_url)
+
+        # Добавляем в layout
+        layout.addWidget(self.quick_widget)
+
+        # Проверка ошибок
+        if self.quick_widget.status() != QQuickWidget.Status.Ready:
+            print("❌ Ошибка загрузки QML:")
+            for error in self.quick_widget.errors():
+                print(f"   {error.toString()}")
+        else:
+            print("✅ QML успешно загружен")
+
+
+    def __get_qml_url(self):
+        """Определяет URL для загрузки QML"""
+        if self.use_compiled_resources:
+            # РЕЖИМ 1: Из скомпилированных ресурсов
+            try:
+                import resources_rc
+                print("📦 Ресурсы загружены из памяти")
+                return QUrl(f"qrc:/{self.__BASE_RESOURCE_QML_NAME}")
+            except ImportError:
+                print("Ресурсы не скомпилированы, видимо путь проброшен неверно")
+            # РЕЖИМ 2: Из QML файла напрямую
+        else:
+            return QUrl.fromLocalFile(self.qml_base_file)
+
