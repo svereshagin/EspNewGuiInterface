@@ -1,4 +1,4 @@
-<!DOCTYPE RCC>
+<!D/OCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/">
         <file>simple.qml</file>

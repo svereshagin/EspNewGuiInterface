@@ -1,11 +1,9 @@
 import sys
-import os
-from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal, Slot, QUrl
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
-import resources_rc  # 👈 Импорт скомпилированных ресурсов
+
 
 class SimpleController(QObject):
     """

@@ -108,21 +108,37 @@ class TSPIoTQmlLoader(QMainWindow):
         else:
             print("✅ QML успешно загружен")
 
-
     def __get_qml_url(self):
         """Определяет URL для загрузки QML"""
         if self.use_compiled_resources:
-            # РЕЖИМ 1: Из скомпилированных ресурсов
             try:
-                # Импортируем скомпилированные ресурсы
                 import src.resources_rc
                 print("📦 Ресурсы успешно загружены из памяти")
-                # Используем qrc:/Gadget.ui.qml (без префикса)
-                return QUrl("qrc:/..ui/Gadget.ui.qml")
+
+                # Отладка - смотрим все доступные ресурсы
+                from PySide6.QtCore import QDir
+                resource_dir = QDir(":/")
+                resources = resource_dir.entryList()
+                print(f"📁 Все ресурсы в корне ':/': {resources}")
+
+                # Проверяем конкретный файл
+                from PySide6.QtCore import QFile
+                if QFile.exists(":/Gadget.ui.qml"):
+                    print("✅ Файл найден как :/Gadget.ui.qml")
+                    return QUrl("qrc:/Gadget.ui.qml")
+                elif QFile.exists(":/ui/Gadget.ui.qml"):
+                    print("✅ Файл найден как :/ui/Gadget.ui.qml")
+                    return QUrl("qrc:/ui/Gadget.ui.qml")
+                else:
+                    print("❌ Файл не найден ни как :/Gadget.ui.qml, ни как :/ui/Gadget.ui.qml")
+
             except ImportError as e:
                 print(f"❌ Ошибка импорта ресурсов: {e}")
-                print("   Падаем назад к файловой системе...")
-            # РЕЖИМ 2: Из QML файла напрямую
-        else:
+
+        # Файловая система
+        if os.path.exists(self.qml_base_file):
+            print(f"📁 Загружаем из файла: {self.qml_base_file}")
             return QUrl.fromLocalFile(self.qml_base_file)
+
+        return QUrl()
 
