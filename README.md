@@ -34,8 +34,8 @@ python -m src.main --dev
 
 #### Режим продакшена (скомпилированные ресурсы)
 ```bash
-# Сначала скомпилировать ресурсы
-pyside6-rcc resources.qrc -o resources_rc.py
+# Сначала скомпилировать ресурсы из корня репозитория 
+uv run pyside6-rcc src/resources.qrc -o src/resources_rc.py
 
 # Затем запустить
 python -m src.main --compiled
@@ -108,12 +108,17 @@ pyside6-rcc resources.qrc -o resources_rc.py
 
 # 2. Сборка с PyInstaller
 pyinstaller --onefile --windowed \
-            --name "ТС-ПИоТ" \
-            --add-data "ui:ui" \
-            --hidden-import PySide6.QtQml \
-            --hidden-import PySide6.QtCore \
-            --hidden-import PySide6.QtGui \
-            src/main.py
+    --name "ТС-ПИоТ" \
+    --add-data "src:src" \
+    --add-data "ui:ui" \
+    --hidden-import PySide6.QtQml \
+    --hidden-import PySide6.QtCore \
+    --hidden-import PySide6.QtGui \
+    --hidden-import PySide6.QtQuick \
+    --hidden-import PySide6.QtQuickWidgets \
+    --collect-data PySide6 \
+    --paths . \
+    src/main.py
 
 # 3. Упаковка в AppImage (опционально)
 # Скачать linuxdeployqt и создать AppImage

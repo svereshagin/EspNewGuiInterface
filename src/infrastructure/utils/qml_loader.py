@@ -11,7 +11,7 @@ from PySide6.QtGui import QFontDatabase, QIcon
 
 class TSPIoTQmlLoader(QMainWindow):
 
-    __BASE_RESOURCE_QML_NAME = "base.qml"
+    __BASE_RESOURCE_QML_NAME = "Gadget.ui.qml"
 
     def __init__(self,
                  window_size: tuple,
@@ -114,11 +114,14 @@ class TSPIoTQmlLoader(QMainWindow):
         if self.use_compiled_resources:
             # РЕЖИМ 1: Из скомпилированных ресурсов
             try:
-                import resources_rc
-                print("📦 Ресурсы загружены из памяти")
-                return QUrl(f"qrc:/{self.__BASE_RESOURCE_QML_NAME}")
-            except ImportError:
-                print("Ресурсы не скомпилированы, видимо путь проброшен неверно")
+                # Импортируем скомпилированные ресурсы
+                import src.resources_rc
+                print("📦 Ресурсы успешно загружены из памяти")
+                # Используем qrc:/Gadget.ui.qml (без префикса)
+                return QUrl("qrc:/..ui/Gadget.ui.qml")
+            except ImportError as e:
+                print(f"❌ Ошибка импорта ресурсов: {e}")
+                print("   Падаем назад к файловой системе...")
             # РЕЖИМ 2: Из QML файла напрямую
         else:
             return QUrl.fromLocalFile(self.qml_base_file)

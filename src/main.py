@@ -1,10 +1,12 @@
+import os
 import sys
 from PySide6.QtWidgets import QApplication
 
 from src.core.config import Settings
+from src.infrastructure.utils.common import resolve_path
 from src.infrastructure.utils.qml_loader import TSPIoTQmlLoader
 
-#TODO доделать /test или подобное, чтобы если было нужно подгружалось отдельно, если нет - компиляция из файлов
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 __WINDOW_SIZE = (829, 612)
 __APP_ICON_PATH = "../ui/assets/image_89.png"
@@ -26,7 +28,8 @@ def check_compile_mode():
 
 if __name__ == "__main__":
     use_compiled = check_compile_mode()
-    print(use_compiled)
+    print(f"🔧 Режим компиляции: {use_compiled}")
+
     app = QApplication(sys.argv)
 
     settings = Settings()
@@ -43,6 +46,11 @@ if __name__ == "__main__":
         print(f"📄 Файл настроек: {settings.get_settings_file()}")
         print(f"📝 Файл лога: {settings.get_log_file()}")
         print(f"🌐 URL оркестратора: {settings.get_orchestrator_url()}")
+
+    # Разрешаем пути для ресурсов
+    icon_path = resolve_path(__APP_ICON_PATH)
+    fonts_path = resolve_path(__FONTS_PATH)
+    qml_path = resolve_path(__QML_PATH)
 
 
     tspiot = TSPIoTQmlLoader(

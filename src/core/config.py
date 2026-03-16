@@ -4,6 +4,18 @@ import platform
 from pathlib import Path
 from typing import Optional, Dict, Any
 from singleton_decorator import singleton
+from dataclasses import dataclass
+
+
+
+@dataclass(frozen=True)
+class ApiSettings:
+    timeout = 30
+    tspiot_port: int = 51401
+    orchestrator_port: int = 51077
+    orchestrator_url: str = "http://127.0.0.1:"+str(orchestrator_port)
+
+
 
 
 @singleton
@@ -14,13 +26,12 @@ class Settings:
 
     def __init__(self):
         """Приватный конструктор (синглтон гарантирует единственный экземпляр)"""
-        self._orchestrator_port: int = 51077
-
         self._config_dir: str = self._get_config_dir()
         self._config_file: str = os.path.join(self._config_dir, "gui_settings.json")
         self._log_properties_file: str = os.path.join(self._config_dir, "gui_log.properties")
         self._log_dir: str = os.path.join(self._config_dir, "log")
         self._log_file: str = os.path.join(self._log_dir, "gui.log")
+
 
     def _get_config_dir(self) -> str:
         """
@@ -37,6 +48,11 @@ class Settings:
             # Windows: C:\ProgramData\esp\esm\esm-gui\
             program_data = os.environ.get('PROGRAMDATA', 'C:\\ProgramData')
             return os.path.join(program_data, "esp", "esm", "esm-gui")
+
+        elif system == "Darwin":
+
+            return os.path.join(home, ".esp", "esm-gui")
+
         else:
             raise RuntimeError(f"Неподдерживаемая ОС: {system}")
 
