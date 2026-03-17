@@ -19,3 +19,5 @@ class KKTController:
     result = KKT_NETWORK.get_dkktList()
     print(result)
 
+if __name__ == '__main__':
+    KKTController()
