@@ -25,6 +25,13 @@ class TspiotResponseMessages(enum.Enum):
 
 
 @dataclass
+class RequestCreateInstanceTSPIOT_DTO:
+    id: str #идентификатор инстанса ЕСМ заполняется значением kktSerial из списка ДККТ
+    port: int | None #порт для подключения оркестратора
+    softPort: int | None #ПОРТ ДЛЯ ПМСР
+
+
+@dataclass
 class TspiotResult:
     """Структура-результат выполнения запроса"""
     success: bool = False
@@ -40,26 +47,30 @@ class TspiotSetup:
 
     ENDPOINT = "/api/v1/tspiot"
 
-    def __init__(self, tspiot_id: str):
-        self.tspiot_id = tspiot_id.strip()
+
+
+    def __init__(self):
         self._result: TspiotResult = TspiotResult()
 
     def get_result(self) -> TspiotResult:
         return self._result
 
-    def execute(self) -> TspiotResult:
+    def execute(self, data: RequestCreateInstanceTSPIOT_DTO) -> TspiotResult:
         """
         Выполняет POST-запрос и проверяет результат запуска сервиса
         """
         self._result = TspiotResult()  # сброс результата
 
-        if not self.tspiot_id:
+        if not data.id:
             self._result.error_message = "Передан пустой tspiot_id"
             logger.error(self._result.error_message)
             return self._result
 
-        payload = {"id": self.tspiot_id}
-
+        payload = {"id": data.id}
+        if data.softPort:
+            payload["softPort"] = data.softPort
+        if data.port:
+            payload["port"] = data.port
         try:
             with ApiClient() as client:
                 response: httpx.Response = client.post(
@@ -152,22 +163,3 @@ class TspiotSetup:
 # Пример использования / тестовый запуск
 # ────────────────────────────────────────────────
 
-if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s"
-    )
-
-    # Тест
-    setup = TspiotSetup(tspiot_id="test-uuid-2025-abc123")
-    result = setup.execute()
-
-    if result.success:
-        print(f"УСПЕХ:   id = {result.tspiot_id}")
-        print(f"        статус = {result.status}")
-    else:
-        print(f"ОШИБКА:  {result.error_message}")
-        if result.tspiot_id:
-            print(f"        (получен id = {result.tspiot_id})")
-        if result.status:
-            print(f"        (статус = {result.status})")

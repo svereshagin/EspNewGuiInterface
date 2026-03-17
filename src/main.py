@@ -1,7 +1,11 @@
 import os
 import sys
+
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import qmlRegisterType, QQmlApplicationEngine
 from PySide6.QtWidgets import QApplication
 
+from application.kkt_controller import KKTController
 from src.core.config import Settings
 from src.infrastructure.utils.common import resolve_path
 from src.infrastructure.utils.qml_loader import TSPIoTQmlLoader
@@ -31,7 +35,6 @@ if __name__ == "__main__":
     print(f"🔧 Режим компиляции: {use_compiled}")
 
     app = QApplication(sys.argv)
-
     settings = Settings()
     if settings.initialize():
         port = settings.get_port()
@@ -57,5 +60,6 @@ if __name__ == "__main__":
         use_compiled_resources=use_compiled,
         qml_file=qml_path,                # ← в dev-режиме это будет абсолютный путь к ui/Gadget.ui.qml
     )
+
     tspiot.show()
     sys.exit(app.exec())

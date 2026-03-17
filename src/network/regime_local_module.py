@@ -1,30 +1,33 @@
-from dataclasses import dataclass
-from enum import Enum
-from typing import List
+
+import httpx
+from typing import Optional
+
+from domain.kkt.entity import CashInfo
+from src.core.config import ApiSettings
+from src.domain.common.regime_local_module import KktInfo
+from src.network.base import ApiClient
 
 
-class ShiftState(str, Enum):
-    """Состояние смены"""
-    CLOSED = "Закрыта"
-    OPENED = "Открыта"
-    EXPIRED = "Истекла"
+class KKTNetwork(ApiClient):
+    __GET_LM_CZ_INFO = "/api/v1/instances/lm/" #+id
+    config = ApiSettings()
 
+    def __init__(self):
+        super().__init__()
+        self._client = None  # Сохраняем клиент для повторного использования
 
-@dataclass
-class KktInfo:
-    """Информация о конкретной кассе"""
-    kktSerial: str  # серийный номер кассы
-    fnSerial: str  # серийный номер ФН
-    kktInn: str  # ИНН на который зарегистрирована касса
-    kktRnm: str  # регистрационный номер ККТ
-    modelName: str  # наименование модели кассы
-    dkktVersion: str  # версия ДККТ
-    developer: str  # разработчик ДККТ
-    manufacturer: str  # производитель кассы
-    shiftState: ShiftState  # состояние смены
+    def _get_client(self):
+        """Получает или создает HTTPX клиент"""
+        if self._client is None or self._client.is_closed:
+            # Создаем клиент без контекстного менеджера
+            self._client = httpx.Client(
+                base_url=self.config.orchestrator_url,
+                timeout=30.0
+            )
+            print("✅ Создан новый HTTPX клиент")
+        return self._client
 
-@dataclass
-class CashInfo:
-    """Информация о подключенных кассах"""
-    kkt: List[KktInfo]  # список подключенных касс
+    def _get_regime_info(self, esm_instance_id: str):
+        client = self._get_client()
+        response = client.get(self.__GET_LM_CZ_INFO+esm_instance_id)
 
