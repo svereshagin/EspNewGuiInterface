@@ -1,6 +1,6 @@
 import httpx
-
 from src.core.config import ApiSettings
+from src.domain.common.regime_local_module import KktInfo
 from src.network.base import ApiClient
 
 
@@ -10,7 +10,6 @@ class KKTNetwork(ApiClient):
 
     def get_dkktList(self):
         """Использование с контекстным менеджером"""
-
         with ApiClient() as client:
             response = client.get(self.__DKKT_URL)
             print(f"Статус: {response.status_code}")
