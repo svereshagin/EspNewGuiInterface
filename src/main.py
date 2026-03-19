@@ -1164,7 +1164,7 @@ def check_compile_mode():
 def main():
     """Главная функция запуска приложения"""
     use_compiled = check_compile_mode()
-    use_test_data = True  # Можно менять для переключения между тестовыми и реальными данными
+    use_test_data = False  # Можно менять для переключения между тестовыми и реальными данными
 
     logger.info("=" * 50)
     logger.info("🚀 ЗАПУСК ГЛАВНОГО ПРИЛОЖЕНИЯ")
