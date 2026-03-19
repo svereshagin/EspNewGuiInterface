@@ -1,44 +1,45 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/">
-        <!-- Главный QML файл -->
-        <file alias="Gadget.ui.qml">ui/Gadget.ui.qml</file>
+        <file alias="MainView.qml">MainView.qml</file>
+<!--        &lt;!&ndash; Главный QML файл &ndash;&gt;-->
+<!--        <file alias="MainView.qml">ui/MainView.qml</file>-->
 
-        <!-- DesignTokens -->
-        <file>ui/DesignTokens/qmldir</file>
+<!--        &lt;!&ndash; DesignTokens &ndash;&gt;-->
+<!--        <file>ui/DesignTokens/qmldir</file>-->
 
-        <!-- Шрифты -->
-        <file alias="inter-regular.ttf">ui/fonts/inter-regular.ttf</file>
-        <file alias="playfairdisplay-semibold.ttf">ui/fonts/playfairdisplay-semibold.ttf</file>
+<!--        &lt;!&ndash; Шрифты &ndash;&gt;-->
+<!--        <file alias="inter-regular.ttf">ui/fonts/inter-regular.ttf</file>-->
+<!--        <file alias="playfairdisplay-semibold.ttf">ui/fonts/playfairdisplay-semibold.ttf</file>-->
 
-        <!-- Assets - с двумя алиасами: без папки и с папкой assets/ -->
-        <file alias="unit_5.png">ui/assets/unit_5.png</file>
-        <file alias="assets/unit_5.png">ui/assets/unit_5.png</file>
+<!--        &lt;!&ndash; Assets - с двумя алиасами: без папки и с папкой assets/ &ndash;&gt;-->
+<!--        <file alias="unit_5.png">ui/assets/unit_5.png</file>-->
+<!--        <file alias="assets/unit_5.png">ui/assets/unit_5.png</file>-->
 
-        <file alias="unit_4.png">ui/assets/unit_4.png</file>
-        <file alias="assets/unit_4.png">ui/assets/unit_4.png</file>
+<!--        <file alias="unit_4.png">ui/assets/unit_4.png</file>-->
+<!--        <file alias="assets/unit_4.png">ui/assets/unit_4.png</file>-->
 
-        <file alias="unit_3.png">ui/assets/unit_3.png</file>
-        <file alias="assets/unit_3.png">ui/assets/unit_3.png</file>
+<!--        <file alias="unit_3.png">ui/assets/unit_3.png</file>-->
+<!--        <file alias="assets/unit_3.png">ui/assets/unit_3.png</file>-->
 
-        <file alias="unit_2.png">ui/assets/unit_2.png</file>
-        <file alias="assets/unit_2.png">ui/assets/unit_2.png</file>
+<!--        <file alias="unit_2.png">ui/assets/unit_2.png</file>-->
+<!--        <file alias="assets/unit_2.png">ui/assets/unit_2.png</file>-->
 
-        <file alias="unit_1.png">ui/assets/unit_1.png</file>
-        <file alias="assets/unit_1.png">ui/assets/unit_1.png</file>
+<!--        <file alias="unit_1.png">ui/assets/unit_1.png</file>-->
+<!--        <file alias="assets/unit_1.png">ui/assets/unit_1.png</file>-->
 
-        <file alias="unit.png">ui/assets/unit.png</file>
-        <file alias="assets/unit.png">ui/assets/unit.png</file>
+<!--        <file alias="unit.png">ui/assets/unit.png</file>-->
+<!--        <file alias="assets/unit.png">ui/assets/unit.png</file>-->
 
-        <file alias="min_Width_1.png">ui/assets/min_Width_1.png</file>
-        <file alias="assets/min_Width_1.png">ui/assets/min_Width_1.png</file>
+<!--        <file alias="min_Width_1.png">ui/assets/min_Width_1.png</file>-->
+<!--        <file alias="assets/min_Width_1.png">ui/assets/min_Width_1.png</file>-->
 
-        <file alias="base_1.png">ui/assets/base_1.png</file>
-        <file alias="assets/base_1.png">ui/assets/base_1.png</file>
+<!--        <file alias="base_1.png">ui/assets/base_1.png</file>-->
+<!--        <file alias="assets/base_1.png">ui/assets/base_1.png</file>-->
 
-        <file alias="base.png">ui/assets/base.png</file>
-        <file alias="assets/base.png">ui/assets/base.png</file>
+<!--        <file alias="base.png">ui/assets/base.png</file>-->
+<!--        <file alias="assets/base.png">ui/assets/base.png</file>-->
 
-        <!-- Добавьте остальные изображения по аналогии -->
+<!--        &lt;!&ndash; Добавьте остальные изображения по аналогии &ndash;&gt;-->
     </qresource>
 </RCC>

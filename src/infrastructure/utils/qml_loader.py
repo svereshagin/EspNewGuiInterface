@@ -264,7 +264,7 @@ class KKTController(QObject):
 
 
 class TSPIoTQmlLoader(QMainWindow):
-    __BASE_RESOURCE_QML_NAME = "Gadget.ui.qml"
+    __BASE_RESOURCE_QML_NAME = "MainView.qml"
 
     def __init__(self,
                  window_size: tuple,
@@ -383,9 +383,9 @@ class TSPIoTQmlLoader(QMainWindow):
                 from PySide6.QtCore import QFile
 
                 possible_paths = [
-                    ":/Gadget.ui.qml",
-                    ":/ui/Gadget.ui.qml",
-                    ":/src/ui/Gadget.ui.qml",
+                    ":/MainView.qml",
+                    ":/ui/MainView.qml",
+                    ":/src/ui/MainView.qml",
                     f":/{self.__BASE_RESOURCE_QML_NAME}"
                 ]
 
