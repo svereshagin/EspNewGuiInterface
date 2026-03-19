@@ -182,24 +182,24 @@ class RegimeNetwork(ApiClient):
         self.close()
 
 
-regimeNetwork = RegimeNetwork()
-
-# Использование без контекстного менеджера
-regimeNetwork.setup_regime_settings(
-    RequestSetupRegime(
-        esm_instance_id="00106327428745",
-        address="127.0.0.1",
-        port=50063,
-        login="admin",
-        password="admin"
-    )
-)
-
-regimeNetwork.get_regime_config_by_instance(
-    RequestGetInfoRegime(esm_instance_id="00106327428745")
-)
-
-response = regimeNetwork.get_regime_settings_by_instance(
-    RequestGetInfoRegime(esm_instance_id="00106327428745")
-)
-print(response)
+# regimeNetwork = RegimeNetwork()
+#
+# # Использование без контекстного менеджера
+# regimeNetwork.setup_regime_settings(
+#     RequestSetupRegime(
+#         esm_instance_id="00106327428745",
+#         address="127.0.0.1",
+#         port=50063,
+#         login="admin",
+#         password="admin"
+#     )
+# )
+#
+# regimeNetwork.get_regime_config_by_instance(
+#     RequestGetInfoRegime(esm_instance_id="00106327428745")
+# )
+#
+# response = regimeNetwork.get_regime_settings_by_instance(
+#     RequestGetInfoRegime(esm_instance_id="00106327428745")
+# )
+# print(response)
