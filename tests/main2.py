@@ -59,7 +59,7 @@ def main():
 
     # ✅ ПРАВИЛЬНЫЙ СПОСОБ: загружаем QML из ресурсов
     # Используем схему qrc:/ вместо file://
-    qml_url = QUrl("qrc:/simple.qml")
+    qml_url = QUrl("qrc:/RegistrationButton.qml")
     print(f"📁 Загрузка QML из ресурсов: {qml_url.toString()}")
 
     # Загружаем QML

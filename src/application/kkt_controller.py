@@ -1,11 +1,11 @@
 import os
 import sys
-from typing import List
+from typing import List, Any
 from PySide6.QtCore import QObject, Slot, Property, Signal, QTimer
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
-from domain.kkt.entity import CashInfo, KktInfo
+from src.domain.kkt.entity import CashInfo, KktInfo
 from src.network.kkt import KKTNetwork
 
 
@@ -15,15 +15,9 @@ class KKTCommand:
         self.KKT_NETWORK = KKTNetwork()
         self._cached_result = None
 
-    def get_kkt_list(self) -> List[str]:
+    def get_kkt_list(self) -> list[Any] | CashInfo:
+        """Получает данные из Network слоя, заполняет слой данных"""
         try:
-            print("🔍 KKTCommand.get_kkt_list() вызван")
-
-            # Если есть кэш и он не пустой, возвращаем его
-            if self._cached_result is not None:
-                print("📦 Возвращаем кэшированные данные")
-                return self._cached_result
-
             result = self.KKT_NETWORK.get_dkktList()
             print(f"📦 Получены данные: {result}")
 
@@ -31,17 +25,11 @@ class KKTCommand:
                 print("❌ Получен None от API")
                 return []
 
-            kkt_names = []
-            if hasattr(result, 'kkt') and result.kkt:
-                for kkt in result.kkt:
-                    kkt_name = f"{kkt.modelName} (с/н: {kkt.kktSerial})"
-                    kkt_names.append(kkt_name)
-                    print(f"  ✅ Добавлена: {kkt_name}")
-
-            # Сохраняем в кэш
-            self._cached_result = kkt_names
-            print(f"📊 Итоговый список: {kkt_names}")
-            return kkt_names
+            kkt_serials = []
+            for i, kkt in enumerate(result.kkt, 1):
+                kkt_serials.append(kkt.kktSerial)
+            print(f"📊 Итоговый список серийных номеров: {kkt_serials}")
+            return kkt_serials
 
         except Exception as e:
             print(f"❌ Ошибка: {e}")

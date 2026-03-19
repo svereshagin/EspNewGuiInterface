@@ -1,7 +1,9 @@
 import httpx
 from typing import Optional
+import asyncio
+from contextlib import asynccontextmanager
 
-from domain.kkt.entity import CashInfo
+from src.domain.kkt.entity import CashInfo
 from src.core.config import ApiSettings
 from src.domain.common.regime_local_module import KktInfo
 from src.network.base import ApiClient
@@ -12,100 +14,121 @@ class KKTNetwork(ApiClient):
     __SETTINGS_LM_URL = "/api/v1/settings/lm"
     config = ApiSettings()
 
+    # Конфигурация таймаутов
+    CONNECTION_TIMEOUT = 10.0
+    READ_TIMEOUT = 30.0
+    KEEPALIVE_TIMEOUT = 60.0
+    MAX_KEEPALIVE_CONNECTIONS = 10
+
+    # Переменная класса для синглтона
+    _instance = None
+    _lock = asyncio.Lock()
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self):
+        if self._initialized:
+            return
         super().__init__()
-        self._client = None  # Сохраняем клиент для повторного использования
+        self._client: Optional[httpx.AsyncClient] = None
+        self._client_lock = asyncio.Lock()
+        self._request_lock = asyncio.Lock()  # Блокировка для запросов
+        self._last_request_time = 0
+        self._initialized = True
+        print(f"✅ KKTNetwork синглтон инициализирован с базовым URL: {self.config.orchestrator_url}")
 
-    def _get_client(self):
-        """Получает или создает HTTPX клиент"""
-        if self._client is None or self._client.is_closed:
-            # Создаем клиент без контекстного менеджера
-            self._client = httpx.Client(
-                base_url=self.config.orchestrator_url,
-                timeout=30.0
-            )
-            print("✅ Создан новый HTTPX клиент")
-        return self._client
+    async def _get_client(self) -> httpx.AsyncClient:
+        """
+        Получает или создает HTTPX клиент с правильной конфигурацией
+        """
+        async with self._client_lock:
+            if self._client is None or self._client.is_closed:
+                limits = httpx.Limits(
+                    max_keepalive_connections=self.MAX_KEEPALIVE_CONNECTIONS,
+                    max_connections=20,
+                    keepalive_expiry=self.KEEPALIVE_TIMEOUT
+                )
 
-    def get_dkktList(self) -> CashInfo | None:
-        """Получение списка касс"""
-        try:
-            client = self._get_client()
-            response = client.get(self.__DKKT_URL)
-            print(f"Статус: {response.status_code}")
+                timeout = httpx.Timeout(self.READ_TIMEOUT)
 
-            if response.status_code == 200:
-                data = response.json()
-                cash_info = CashInfo.from_api_response(data)
-                print(f"Данные: {cash_info}")
-                return cash_info
-            else:
-                print(f"Ошибка API: статус {response.status_code}")
-                print(f"Ответ: {response.text}")
+                self._client = httpx.AsyncClient(
+                    base_url=self.config.orchestrator_url,
+                    timeout=timeout,
+                    limits=limits,
+                    follow_redirects=True,
+                    max_redirects=5,
+                    verify=False
+                )
+                print("✅ Создан новый Async HTTPX клиент")
+
+            return self._client
+
+    async def get_dkktList(self) -> Optional[CashInfo]:
+        """
+        Асинхронное получение списка касс с правильной обработкой таймаутов
+        """
+        # Блокируем параллельные запросы
+        async with self._request_lock:
+            print("🔍 Запрос к /api/v1/dkktList")
+
+            try:
+                client = await self._get_client()
+
+                # Добавляем retry логику
+                for attempt in range(3):
+                    try:
+                        response = await client.get(
+                            self.__DKKT_URL,
+                            timeout=self.READ_TIMEOUT
+                        )
+
+                        print(f"📥 Статус: {response.status_code} (попытка {attempt + 1})")
+
+                        if response.status_code == 200:
+                            data = response.json()
+                            cash_info = CashInfo.from_api_response(data)
+                            print(f"✅ Данные получены: {len(cash_info.kkt)} касс")
+                            return cash_info
+                        elif response.status_code in [502, 503, 504]:
+                            print(f"⚠️ Временная ошибка, повтор через {2 ** attempt}с")
+                            await asyncio.sleep(2 ** attempt)
+                            continue
+                        else:
+                            print(f"❌ Ошибка API: {response.status_code}")
+                            return None
+
+                    except httpx.TimeoutException as e:
+                        print(f"⏱️ Таймаут (попытка {attempt + 1})")
+                        if attempt < 2:
+                            await asyncio.sleep(2 ** attempt)
+                            continue
+                        return None
+
+                    except httpx.NetworkError as e:
+                        print(f"🌐 Сетевая ошибка (попытка {attempt + 1})")
+                        if attempt < 2:
+                            await asyncio.sleep(2 ** attempt)
+                            continue
+                        return None
+
+            except Exception as e:
+                print(f"❌ Ошибка: {e}")
                 return None
 
-        except httpx.TimeoutException as e:
-            print(f"Таймаут соединения: {e}")
-            return None
-        except httpx.NetworkError as e:
-            print(f"Сетевая ошибка: {e}")
-            return None
-        except httpx.HTTPStatusError as e:
-            print(f"HTTP ошибка: {e.response.status_code} - {e.response.text}")
-            return None
-        except httpx.RequestError as e:
-            print(f"Ошибка запроса: {e}")
-            return None
-        except ValueError as e:
-            print(f"Ошибка парсинга JSON: {e}")
-            return None
-        except Exception as e:
-            print(f"Неизвестная ошибка: {e}")
-            return None
+    async def close(self):
+        """Асинхронное закрытие клиента"""
+        async with self._client_lock:
+            if self._client and not self._client.is_closed:
+                await self._client.aclose()
+                self._client = None
+                print("🔒 HTTPX клиент закрыт")
 
-    def set_lm_settings(self, lm_id: str, address: str, port: int,
-                        login: str, password: str, new_password: str = None) -> bool:
-        """
-        Установка настроек ЛМ
-        PUT /api/v1/settings/lm/:id
-        """
-        try:
-            client = self._get_client()
-            url = f"{self.__SETTINGS_LM_URL}/{lm_id}"
+    async def __aenter__(self):
+        return self
 
-            # Формируем данные запроса
-            data = {
-                "address": address,
-                "port": port,
-                "login": login,
-                "password": password
-            }
-
-            # Добавляем новый пароль, если передан
-            if new_password:
-                data["newPassword"] = new_password
-
-            response = client.put(url, json=data)
-            print(f"Статус установки настроек ЛМ: {response.status_code}")
-
-            if response.status_code in [200, 201, 204]:
-                print(f"✅ Настройки ЛМ успешно установлены для {lm_id}")
-                return True
-            else:
-                print(f"❌ Ошибка установки настроек: {response.status_code}")
-                print(f"Ответ: {response.text}")
-                return False
-
-        except Exception as e:
-            print(f"❌ Ошибка при установке настроек ЛМ: {e}")
-            return False
-
-    def close(self):
-        """Закрывает клиент при завершении работы"""
-        if self._client and not self._client.is_closed:
-            self._client.close()
-            print("🔒 HTTPX клиент закрыт")
-
-    def __del__(self):
-        """Деструктор для гарантированного закрытия"""
-        self.close()
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close()

@@ -17,18 +17,32 @@ class TspiotResponseMessages(enum.Enum):
     CONNECTION_ERROR = "Не удалось установить соединение с оркестратором"
     REQUEST_ERROR_PREFIX = "Ошибка выполнения запроса: "
     MISSING_FIELDS = "В ответе отсутствуют поля 'id' и/или 'serviceState'"
-    NON_200_RESPONSE = "Сервер вернул код"
+    NON_201_RESPONSE = "Сервер вернул код"
     JSON_PARSE_ERROR = "Не удалось разобрать JSON-ответ"
     CRITICAL_ERROR_PREFIX = "Критическая ошибка при создании tspiot: "
     SUCCESS_PREFIX = "tspiot успешно запущен → id="
     UNEXPECTED_STATUS_PREFIX = "Сервис находится в состоянии"
 
+@dataclass
+class RequestRegistrationTSPIOT_DTO:
+    id: str #идентификатор инстанса ЕСМ
+    kktSerial: str #Серийный номер кассы
+    fnSerial: str # Серийный номер ФН
+    kktInn: str  # ИНН на который зарегистрирована касса
+
+@dataclass
+class ResponseRegistrationTSPIOT_DTO:
+    tspiotId: str
 
 @dataclass
 class RequestCreateInstanceTSPIOT_DTO:
-    id: str #идентификатор инстанса ЕСМ заполняется значением kktSerial из списка ДККТ
-    port: int | None #порт для подключения оркестратора
-    softPort: int | None #ПОРТ ДЛЯ ПМСР
+    kkt_serial: str #идентификатор инстанса ЕСМ заполняется значением kktSerial из списка ДККТ
+    port: int | None = None #порт для подключения оркестратора
+    softPort: int | None = None #ПОРТ ДЛЯ ПМСР
+
+
+
+
 
 
 @dataclass
@@ -48,29 +62,59 @@ class TspiotSetup:
     ENDPOINT = "/api/v1/tspiot"
 
 
-
     def __init__(self):
         self._result: TspiotResult = TspiotResult()
+
+    def register_tspiot(self, data: RequestRegistrationTSPIOT_DTO):
+        payload = {"id": data.id, "kktSerial": data.kktSerial, "fnSerial": data.fnSerial, "kktInn": data.kktInn}
+        try:
+            with ApiClient() as client:
+                response: httpx.Response = client.put(
+                    self.ENDPOINT,
+                    data=payload
+                )
+        except httpx.TimeoutException:
+            self._result.error_message = TspiotResponseMessages.TIMEOUT_ERROR.value
+            logger.error(self._result.error_message)
+            return self._result
+        if response.status_code == 201:
+            return ResponseRegistrationTSPIOT_DTO(tspiotId=response.json().get("tspiotId"))
+        if response.status_code == 403:
+            #Ошибка от оркестратора = несколько ИНН нужно логировать просто такое
+            pass
+            # < Response[403
+            # Forbidden] >
+            # 403
+            # {'error': {'code': 1026, 'text': 'Обнаружено несколько ИНН',
+            #            'description': 'ИНН новой кассы "971716963" не соответствует ИНН уже существующих касс "9717169631"'}}
+            #
+
+        return response
+
 
     def get_result(self) -> TspiotResult:
         return self._result
 
-    def execute(self, data: RequestCreateInstanceTSPIOT_DTO) -> TspiotResult:
+    def create_esm_service(self, data: RequestCreateInstanceTSPIOT_DTO) -> TspiotResult:
         """
         Выполняет POST-запрос и проверяет результат запуска сервиса
         """
         self._result = TspiotResult()  # сброс результата
 
-        if not data.id:
+        if not data.kkt_serial:
             self._result.error_message = "Передан пустой tspiot_id"
             logger.error(self._result.error_message)
             return self._result
 
-        payload = {"id": data.id}
+        payload = {"id": data.kkt_serial}
+
+        #оставил для обратной совместимости, в протоколе две версии
         if data.softPort:
             payload["softPort"] = data.softPort
         if data.port:
             payload["port"] = data.port
+
+
         try:
             with ApiClient() as client:
                 response: httpx.Response = client.post(
@@ -109,8 +153,10 @@ class TspiotSetup:
 
         logger.debug(f"POST {self.ENDPOINT} → статус {response.status_code}")
 
-        if response.status_code != 200:
-            msg = f"{TspiotResponseMessages.NON_200_RESPONSE.value} {response.status_code}"
+        if response.status_code != 201:
+            msg = f"{TspiotResponseMessages.NON_201_RESPONSE.value} {response.status_code}"
+            print(response.json())
+
             try:
                 detail = response.json().get("detail", "").strip()
                 if detail:
@@ -162,4 +208,5 @@ class TspiotSetup:
 # ────────────────────────────────────────────────
 # Пример использования / тестовый запуск
 # ────────────────────────────────────────────────
+
 

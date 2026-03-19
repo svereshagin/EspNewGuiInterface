@@ -1,0 +1,32 @@
+# PowerShell (Администратор)
+
+$serviceName = "esm-cm-00106327428745"
+
+# Получить службу через WMI
+$service = Get-WmiObject -Class Win32_Service | Where-Object { $_.Name -eq $serviceName }
+
+if ($service) {
+    Write-Host "Найдена служба: $($service.Name)" -ForegroundColor Green
+    Write-Host "Путь к исполняемому файлу: $($service.PathName)" -ForegroundColor Yellow
+    
+    # Остановить
+    $service.StopService()
+    Start-Sleep -Seconds 3
+    
+    # Удалить
+    $result = $service.Delete()
+    
+    if ($result.ReturnValue -eq 0) {
+        Write-Host "✅ Служба успешно удалена" -ForegroundColor Green
+    } else {
+        Write-Host "❌ Ошибка удаления. Код: $($result.ReturnValue)" -ForegroundColor Red
+        
+        # Коды ошибок:
+        # 0 - Успешно
+        # 2 - Нет доступа
+        # 8 - Неизвестная ошибка
+        # 21 - Параметр недопустим
+    }
+} else {
+    Write-Host "Служба не найдена через WMI" -ForegroundColor Yellow
+}

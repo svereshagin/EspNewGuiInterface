@@ -58,7 +58,7 @@ class Controlmodule_instance_DTO:
 
 
 @dataclass
-class Controlmodule_instalces_DTO:
+class Controlmodule_instances_DTO:
     instances: list[Controlmodule_instance_DTO]
 
 
@@ -104,50 +104,60 @@ class ControlmoduleNetwork(ApiClient):
         except Exception as e:
             print(e)
 
-    def _get_cm_instances(self):
+    def _get_cm_instances(self) -> Optional[Controlmodule_instances_DTO]:
+        """
+        Получает список зарегистрированных экземпляров ТС ПИоТ
+        GET /api/v1/instances/info
+
+        Returns:
+            Controlmodule_instances_DTO с массивом instances или None в случае ошибки
+            При статусе 204 возвращает пустой список (нет зарегистрированных)
+        """
         try:
             client = self._get_client()
             response = client.get(self.__CONTROLMODULE_INSTANCES)
-            print(f"Статус: {response.status_code}")
+            print(f"📥 Статус GET {self.__CONTROLMODULE_INSTANCES}: {response.status_code}")
 
             if response.status_code == 200:
                 data = response.json()
-                dto = Controlmodule_info_DTO(data["appPath"], data["version"], data["logPath"])
-                return dto
-            if response.status_code == 204:
-                #TODO видимо это значит, что у нас нет зареганных экземпляров тспиот
-                return None
+                print(f"📦 Получены данные: {data}")
+
+                # Парсим массив instances
+                instances_list = []
+                for inst_data in data.get("instances", []):
+                    instance = Controlmodule_instance_DTO(
+                        id=inst_data["id"],
+                        port=inst_data["port"],
+                        serviceState=inst_data["serviceState"]
+                    )
+                    instances_list.append(instance)
+                print(instances_list)
+                return Controlmodule_instances_DTO(instances=instances_list)
+
+            elif response.status_code == 204:
+                print("ℹ️ Нет зарегистрированных экземпляров (204 No Content)")
+                # Возвращаем пустой список, а не None
+                return Controlmodule_instances_DTO(instances=[])
+
             else:
-                print(f"Ошибка API: статус {response.status_code}")
-                print(f"Ответ: {response.text}")
+                print(f"❌ Ошибка API: статус {response.status_code}")
+                if response.text:
+                    print(f"Ответ: {response.text[:200]}")
                 return None
+
+        except httpx.TimeoutException:
+            print("⏱️ Таймаут при получении списка экземпляров")
+            return None
+        except httpx.NetworkError as e:
+            print(f"🌐 Сетевая ошибка: {e}")
+            return None
         except Exception as e:
-            print(e)
+            print(f"❌ Неизвестная ошибка в _get_cm_instances: {e}")
+            return None
 
     def _get_cm_instance_info(self, esm_instance_id: str):
         try:
             client = self._get_client()
-            response = client.get(self.__CONTROLMODULE_INSTANCE_INFO + instance_id)
+            response = client.get(self.__CONTROLMODULE_INSTANCE_INFO + esm_instance_id)
         except Exception as e:
             print(e)
-
-
-
-
-cm = ControlmoduleNetwork()
-
-
-
-# Запрос GET на endpoint /api/v1/info
-# Пример запроса:
-# curl --location 'http://127.0.0.1:51077/api/v1/info'
-#
-# Примеры ответа:
-# {"appPath":"/opt/esp/esm/bin/controlmodule","version":"1.4.5.7","logPath":"/var/log/esp/esm/um"}
-#
-# {"appPath":"C:\\Program Files\\ESP\\ESM\\bin\\controlmodule.exe","version":"1.4.5.7","logPath":"C:\\ProgramData\\esp\\esm\\um\\log"}
-# Поля ответа:
-# Параметр	Тип	Описание
-# appPath	string	путь до binary оркестратора
-# version	string	версия оркестратора
-# logPath	string	путь к логам

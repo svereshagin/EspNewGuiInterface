@@ -1,17 +1,11 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import QtQuick.Window 2.15
 
-Window {
+Item {
     id: root
     width: 900
     height: 700
-    minimumWidth: 800
-    minimumHeight: 600
-    visible: true
-    title: "Управление кассами и интеграциями"
-    color: "#f5f5f7"
 
     // Глобальные временные переменные для диалогов
     property string tempGismtAddress: ""
@@ -983,7 +977,8 @@ Window {
         title: "Регистрация кассы"
         standardButtons: Dialog.Ok
         modal: true
-        anchors.centerIn: parent
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
         width: 400
 
         property string message: ""

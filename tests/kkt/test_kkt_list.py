@@ -1,32 +1,32 @@
 import sys
 import os
-from typing import List
+import asyncio
+from typing import List, Optional
+from concurrent.futures import ThreadPoolExecutor
 from PySide6.QtCore import QObject, Slot, Property, Signal, QTimer, QUrl
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QMainWindow
-from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtGui import QFontDatabase, QIcon
 
-# Импорты для тестовых данных
-from domain.kkt.entity import CashInfo
-from src.domain.common.regime_local_module import KktInfo, ShiftState
+from src.domain.kkt.entity import CashInfo, ShiftState, KktInfo
+from src.network.kkt import KKTNetwork
 
 
 class KKTCommand:
-    """Класс для тестирования - возвращает тестовые данные"""
+    """Класс для работы с сетью - возвращает данные от API"""
 
-    def __init__(self):
+    def __init__(self,  use_test_data=True):
         self._cached_result = None
-        print("🔧 KKTCommand инициализирован в тестовом режиме")
+        self._network = None
+        self._loop = None
+        self._executor = ThreadPoolExecutor(max_workers=1)
+        self._use_test_data = use_test_data  # ИЗМЕНЕНИЕ 2: сохранить флаг
+        print("🔧 KKTCommand инициализирован")
 
-    def get_kkt_list(self) -> List[str]:
-        """
-        Возвращает тестовый список серийных номеров касс
-        """
-        print("🔍 get_kkt_list() вызван - используем ТЕСТОВЫЕ данные")
-
-        # Создаем тестовые данные
-        cash_info = CashInfo(
+    def _get_test_data(self) -> CashInfo:
+        """Возвращает тестовые данные"""
+        print("🧪 Используем тестовые данные")
+        return CashInfo(
             kkt=[
                 KktInfo(
                     kktSerial='00106327428745',
@@ -64,19 +64,120 @@ class KKTCommand:
             ]
         )
 
-        cash_info = CashInfo(kkt=[])
+    def _get_network(self):
+        """Получает или создает экземпляр KKTNetwork (синглтон)"""
+        if self._use_test_data:  # ИЗМЕНЕНИЕ 3: не создаем сеть для тестов
+            return None
+        if self._network is None:
+            self._network = KKTNetwork()
+        return self._network
 
-        # Извлекаем серийные номера
-        kkt_serials = []
-        print(f"📦 Получены тестовые данные: {len(cash_info.kkt)} касс")
+    def _get_or_create_event_loop(self):
+        """Получает или создает event loop"""
+        try:
+            self._loop = asyncio.get_running_loop()
+        except RuntimeError:
+            self._loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self._loop)
+        return self._loop
 
-        for i, kkt in enumerate(cash_info.kkt, 1):
-            kkt_serials.append(kkt.kktSerial)
-            print(f"  {i}. Серийный номер: {kkt.kktSerial} - {kkt.modelName}")
+    async def _get_kkt_list_async(self) -> Optional[CashInfo]:
+        """Асинхронное получение списка касс"""
+        if self._use_test_data:  # ИЗМЕНЕНИЕ 4: возвращаем тестовые данные
+            return self._get_test_data()
+        try:
+            network = self._get_network()
+            result = await network.get_dkktList()
+            return result
+        except Exception as e:
+            print(f"❌ Ошибка в _get_kkt_list_async: {e}")
+            return None
 
-        print(f"📊 Итоговый список серийных номеров: {kkt_serials}")
-        return kkt_serials
+    def get_kkt_list(self) -> List[str]:
+        """
+        Синхронная обертка для асинхронного метода
+        Возвращает список серийных номеров касс
+        """
+        print("🔍 get_kkt_list() вызван")
 
+        try:
+            # Создаем или получаем event loop
+            loop = self._get_or_create_event_loop()
+
+            # Запускаем асинхронную операцию
+            cash_info = loop.run_until_complete(self._get_kkt_list_async())
+
+            if cash_info and cash_info.kkt:
+                print(f"📦 Получены данные: {len(cash_info.kkt)} касс")
+
+                # Кэшируем для последующего использования
+                self._cached_result = cash_info
+
+                # Извлекаем серийные номера
+                kkt_serials = []
+                for i, kkt in enumerate(cash_info.kkt, 1):
+                    kkt_serials.append(kkt.kktSerial)
+                    print(f"  {i}. Серийный номер: {kkt.kktSerial} - {kkt.modelName}")
+
+                print(f"📊 Итоговый список серийных номеров: {kkt_serials}")
+                return kkt_serials
+            else:
+                print("❌ Нет данных о кассах")
+                return []
+
+        except Exception as e:
+            print(f"❌ Ошибка в get_kkt_list: {e}")
+            return []
+
+    def get_full_kkt_info(self) -> Optional[CashInfo]:
+        """
+        Синхронная обертка для получения полной информации
+        """
+        print("🔍 get_full_kkt_info() вызван")
+
+        # Если есть кэшированные данные, возвращаем их
+        if self._cached_result:
+            print("📦 Возвращаем кэшированные данные")
+            return self._cached_result
+
+        # Иначе запрашиваем заново
+        try:
+            loop = self._get_or_create_event_loop()
+            cash_info = loop.run_until_complete(self._get_kkt_list_async())
+            self._cached_result = cash_info
+            return cash_info
+        except Exception as e:
+            print(f"❌ Ошибка в get_full_kkt_info: {e}")
+            return None
+
+    async def close_async(self):
+        """Асинхронное закрытие соединения"""
+        if self._network:
+            await self._network.close()
+            self._network = None
+            print("🔒 Сетевое соединение закрыто асинхронно")
+
+    def close(self):
+        """Синхронное закрытие соединения"""
+        if self._network:
+            try:
+                loop = self._get_or_create_event_loop()
+                if loop.is_running():
+                    asyncio.create_task(self.close_async())
+                else:
+                    loop.run_until_complete(self.close_async())
+            except Exception as e:
+                print(f"⚠️ Ошибка при закрытии: {e}")
+
+        if self._loop and not self._loop.is_closed():
+            self._loop.close()
+            self._loop = None
+
+        self._executor.shutdown(wait=False)
+
+    def __del__(self):
+        """Деструктор"""
+        self.close()
 
 class KKTController(QObject):
     """
@@ -87,33 +188,45 @@ class KKTController(QObject):
     kktListChanged = Signal()
     selectedKktChanged = Signal()
     loadingChanged = Signal()
+    kktInfoChanged = Signal()
 
-    def __init__(self, parent=None):
+    # Новые сигналы для передачи данных между потоками
+    kktListUpdated = Signal(list)
+    kktInfoUpdated = Signal(dict)
+
+    def __init__(self, parent=None, use_test_data=True):  # ИЗМЕНЕНИЕ: добавить параметр
         super().__init__(parent)
-        print("✅ KKTController инициализирован")
+        print(f"✅ KKTController инициализирован (test_data={use_test_data})")
+
         self._kkt_list = []
         self._selected_kkt = ""
         self._is_loading = False
-        self._kkt_command = KKTCommand()
+        self._kkt_command = KKTCommand(use_test_data=use_test_data)  # ИЗМЕНЕНИЕ: передать флаг
+        self._current_kkt_info = None
+
+        # Подключаем сигналы
+        self.kktListUpdated.connect(self._on_refresh_complete)
+        self.kktInfoUpdated.connect(self._on_info_loaded)
 
         # Загружаем данные через 500 мс
         QTimer.singleShot(500, self.refresh_kkt_list)
 
     @Property(list, notify=kktListChanged)
     def kktList(self):
-        """Возвращает список серийных номеров касс"""
-        print(f"📋 kktList запрошен из QML, возвращает {len(self._kkt_list)} элементов: {self._kkt_list}")
         return self._kkt_list
 
     @Property(str, notify=selectedKktChanged)
     def selectedKkt(self):
-        """Возвращает выбранный серийный номер"""
         return self._selected_kkt
 
     @Property(bool, notify=loadingChanged)
     def isLoading(self):
-        """Флаг загрузки"""
         return self._is_loading
+
+    # Убираем QVariant, используем object
+    @Property('QVariant', notify=kktInfoChanged)
+    def kktInfo(self):
+        return self._current_kkt_info
 
     @Slot()
     def refresh_kkt_list(self):
@@ -123,51 +236,107 @@ class KKTController(QObject):
         self._is_loading = True
         self.loadingChanged.emit()
 
+        # Запускаем в отдельном потоке
+        from threading import Thread
+        thread = Thread(target=self._refresh_kkt_list_thread)
+        thread.daemon = True
+        thread.start()
+
+    def _refresh_kkt_list_thread(self):
+        """Выполняется в отдельном потоке"""
         try:
-            # Получаем список серийных номеров
             new_kkt_list = self._kkt_command.get_kkt_list()
 
-            # Обновляем список
-            self._kkt_list = new_kkt_list
-
-            print(f"✅ Список обновлен: {len(new_kkt_list)} элементов")
-            print(f"📋 Новый список: {new_kkt_list}")
-
-            # Отправляем сигнал об изменении
-            self.kktListChanged.emit()
+            # Используем сигнал для передачи данных
+            self.kktListUpdated.emit(new_kkt_list)
 
         except Exception as e:
-            print(f"❌ Ошибка: {e}")
-            self._kkt_list = []
-            self.kktListChanged.emit()
+            print(f"❌ Ошибка в потоке: {e}")
+            self.kktListUpdated.emit([])
 
-        finally:
-            self._is_loading = False
-            self.loadingChanged.emit()
+    @Slot(list)
+    def _on_refresh_complete(self, kkt_list):
+        """Слот для обновления UI после завершения потока"""
+        self._kkt_list = kkt_list
+        print(f"✅ Список обновлен: {len(kkt_list)} элементов")
+        self.kktListChanged.emit()
+        self._is_loading = False
+        self.loadingChanged.emit()
 
     @Slot(str)
     def select_kkt(self, kkt_serial: str):
         """Выбирает кассу по серийному номеру"""
         print(f"🎯 select_kkt({kkt_serial})")
+
         if self._selected_kkt != kkt_serial:
             self._selected_kkt = kkt_serial
             self.selectedKktChanged.emit()
-            print(f"✅ Выбран серийный номер: {kkt_serial}")
+
+            # Загружаем информацию в отдельном потоке
+            from threading import Thread
+            thread = Thread(target=self._load_kkt_info_thread, args=(kkt_serial,))
+            thread.daemon = True
+            thread.start()
+
+
+
+
+
+    def _load_kkt_info_thread(self, kkt_serial: str):
+        """Загружает информацию о кассе в отдельном потоке"""
+        print(f"🔍 Загрузка информации для кассы: {kkt_serial}")
+
+        cash_info = self._kkt_command.get_full_kkt_info()
+
+        if cash_info and cash_info.kkt:
+            for kkt in cash_info.kkt:
+                if kkt.kktSerial == kkt_serial:
+                    info_dict = {
+                        'kktSerial': kkt.kktSerial,
+                        'fnSerial': kkt.fnSerial,
+                        'kktInn': kkt.kktInn,
+                        'kktRnm': kkt.kktRnm,
+                        'modelName': kkt.modelName,
+                        'dkktVersion': kkt.dkktVersion,
+                        'developer': kkt.developer,
+                        'manufacturer': kkt.manufacturer,
+                        'shiftState': kkt.shiftState.value
+                    }
+
+                    # Используем сигнал для передачи данных
+                    self.kktInfoUpdated.emit(info_dict)
+                    return
+
+        # Если касса не найдена
+        self.kktInfoUpdated.emit(None)
+
+    @Slot(dict)
+    def _on_info_loaded(self, info_dict):
+        """Слот для обновления информации о кассе"""
+        self._current_kkt_info = info_dict
+        self.kktInfoChanged.emit()
+        if info_dict:
+            print(f"✅ Информация загружена для кассы: {info_dict.get('kktSerial')}")
+        else:
+            print(f"⚠️ Информация не найдена")
 
     @Slot()
     def clear_selection(self):
         """Сбрасывает выбор"""
         print("🧹 clear_selection()")
         self._selected_kkt = ""
+        self._current_kkt_info = None
         self.selectedKktChanged.emit()
+        self.kktInfoChanged.emit()
 
-    @Slot(str, result=str)
-    def get_kkt_status(self, kkt_serial: str) -> str:
-        """Возвращает статус кассы (заглушка)"""
-        if kkt_serial:
-            # В реальном коде здесь можно получить статус по серийному номеру
-            return "🟢 Активна"
-        return "⚪ Не выбрана"
+    def close(self):
+        """Закрывает соединение"""
+        if self._kkt_command:
+            self._kkt_command.close()
+
+    def __del__(self):
+        """Деструктор"""
+        self.close()
 
 
 class TSPIoTQmlLoader(QMainWindow):
@@ -176,11 +345,13 @@ class TSPIoTQmlLoader(QMainWindow):
                  app_icon_path: str,
                  header_name: str,
                  fonts_path: str,
-                 qml_file: str):
+                 qml_file: str,
+                 use_test_data = True
+                 ):
         super().__init__()
 
         # Создаем контроллер
-        self._kkt_controller = KKTController()
+        self._kkt_controller = KKTController(use_test_data=use_test_data)
 
         # Сохраняем параметры
         self.app_icon_path = app_icon_path
@@ -251,7 +422,7 @@ class TSPIoTQmlLoader(QMainWindow):
 def main():
     # Параметры
     SRC_DIR = os.path.dirname(os.path.abspath(__file__))
-    __WINDOW_SIZE = (400, 300)
+    __WINDOW_SIZE = (600, 700)
     __APP_HEADER_TITLE = "ТС ПИоТ - Тест касс"
     __APP_ICON_PATH = os.path.join(SRC_DIR, "ui", "assets", "image_89.png")
     __FONTS_PATH = os.path.join(SRC_DIR, "ui", "fonts")
@@ -265,7 +436,8 @@ def main():
         app_icon_path=__APP_ICON_PATH,
         header_name=__APP_HEADER_TITLE,
         fonts_path=__FONTS_PATH,
-        qml_file=__QML_PATH
+        qml_file=__QML_PATH,
+        use_test_data=True
     )
 
     loader.show()
