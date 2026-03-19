@@ -31,6 +31,14 @@ from src.network.regime_local_module import (
     ResponseGetSettingsRegime
 )
 
+import resources_rc
+
+def resource_path(relative_path):
+    """Получить абсолютный путь к ресурсу, работает для dev и для PyInstaller"""
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    return os.path.join(base_path, relative_path)
+
+
 # Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
@@ -1164,22 +1172,38 @@ def check_compile_mode():
 def main():
     """Главная функция запуска приложения"""
     use_compiled = check_compile_mode()
-    use_test_data = False  # Можно менять для переключения между тестовыми и реальными данными
+    use_test_data = False
 
     logger.info("=" * 50)
     logger.info("🚀 ЗАПУСК ГЛАВНОГО ПРИЛОЖЕНИЯ")
     logger.info("=" * 50)
+
+    # Проверка режима запуска
+    if getattr(sys, 'frozen', False):
+        logger.info("📦 Запуск из скомпилированного приложения (frozen)")
+        logger.info(f"📁 sys.executable: {sys.executable}")
+        logger.info(f"📁 sys._MEIPASS: {sys._MEIPASS}")
+    else:
+        logger.info("💻 Запуск в режиме разработки")
+
     logger.info(f"🔧 Режим компиляции: {use_compiled}")
     logger.info(f"📊 Режим тестовых данных: {use_test_data}")
 
-    # Параметры
+    # Параметры с использованием resource_path
     SRC_DIR = os.path.dirname(os.path.abspath(__file__))
     __WINDOW_SIZE = (900, 700)
     __APP_HEADER_TITLE = "Управление кассами и интеграциями"
-    __APP_ICON_PATH = os.path.join(SRC_DIR, "ui", "assets", "image_89.png")
-    __FONTS_PATH = os.path.join(SRC_DIR, "ui", "fonts")
-    __QML_PATH = os.path.join(SRC_DIR, "ui", "MainView.qml")
-    __LM_INSTANCE_ID = "00106327428745"  # ID инстанса для ЛМ ЧЗ
+
+    # Используем resource_path для всех файлов
+    __APP_ICON_PATH = resource_path(os.path.join("src", "ui", "assets", "image_89.png"))
+    __FONTS_PATH = resource_path(os.path.join("src", "ui", "fonts"))
+    __QML_PATH = resource_path(os.path.join("src", "ui", "MainView.qml"))
+    __LM_INSTANCE_ID = "00106327428745"
+
+    # Проверяем существование файлов
+    logger.info(f"📁 Проверка QML файла: {__QML_PATH} существует? {os.path.exists(__QML_PATH)}")
+    logger.info(f"📁 Проверка папки со шрифтами: {__FONTS_PATH} существует? {os.path.exists(__FONTS_PATH)}")
+    logger.info(f"📁 Проверка иконки: {__APP_ICON_PATH} существует? {os.path.exists(__APP_ICON_PATH)}")
 
     app = QApplication(sys.argv)
 
@@ -1196,7 +1220,6 @@ def main():
 
     loader.show()
     sys.exit(app.exec())
-
 
 if __name__ == "__main__":
     main()
