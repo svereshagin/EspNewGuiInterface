@@ -9395,3 +9395,563 @@ RuntimeError: Cannot send a request, as the client has been closed.
 2026-03-18 19:44:54,093 - __main__ - DEBUG -   • ID: 00106327428745, Статус: Работает, Порт: 50401, Время создания: N/A
 2026-03-18 19:44:54,093 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: True
 2026-03-18 19:44:54,093 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=True, можно регистрировать=False
+2026-03-20 11:05:54,895 - __main__ - INFO - ==================================================
+2026-03-20 11:05:54,896 - __main__ - INFO - 🚀 ЗАПУСК ПРИЛОЖЕНИЯ
+2026-03-20 11:05:54,896 - __main__ - INFO - ==================================================
+2026-03-20 11:05:54,924 - __main__ - INFO - ✅ KKTController инициализирован (test_data=False)
+2026-03-20 11:05:54,925 - __main__ - INFO - 🔧 KKTCommand инициализирован (test_data=False)
+2026-03-20 11:05:55,209 - __main__ - INFO - 🔧 TSPIOTCommand инициализирован (test_data=False)
+2026-03-20 11:05:55,209 - __main__ - WARNING - ❌ Папка со шрифтами не найдена: C:\Users\amadeo\PyCharmMiscProject\tests\kkt_main\ui\fonts
+2026-03-20 11:05:55,210 - __main__ - WARNING - ❌ Иконка не найдена: C:\Users\amadeo\PyCharmMiscProject\tests\kkt_main\ui\assets\image_89.png
+2026-03-20 11:05:55,215 - __main__ - INFO - ✅ Контроллер зарегистрирован в QML контексте как 'kktController'
+2026-03-20 11:05:55,215 - __main__ - INFO - 📁 Загрузка QML из: file:///C:/Users/amadeo/PyCharmMiscProject/tests/kkt_main/ui/simple.qml
+2026-03-20 11:05:55,407 - __main__ - DEBUG - ❌ Нельзя регистрировать: нет выбранной кассы или информации
+2026-03-20 11:05:55,407 - __main__ - DEBUG - ❌ Нельзя регистрировать: нет выбранной кассы или информации
+2026-03-20 11:05:55,454 - __main__ - INFO - 🔄 refresh_kkt_list вызван
+2026-03-20 11:05:55,454 - __main__ - DEBUG - Запуск потока обновления списка касс
+2026-03-20 11:05:55,455 - __main__ - INFO - ✅ QML успешно загружен
+2026-03-20 11:05:55,455 - __main__ - INFO - 🔍 get_kkt_list() вызван
+2026-03-20 11:05:55,455 - asyncio - DEBUG - Using proactor: IocpProactor
+2026-03-20 11:05:55,817 - __main__ - INFO - 🔄 refresh_kkt_list вызван
+2026-03-20 11:05:55,818 - __main__ - DEBUG - Запуск потока обновления списка касс
+2026-03-20 11:05:55,818 - __main__ - INFO - 🔍 get_kkt_list() вызван
+2026-03-20 11:05:55,818 - asyncio - DEBUG - Using proactor: IocpProactor
+2026-03-20 11:05:56,078 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=51077 local_address=None timeout=30.0 socket_options=None
+2026-03-20 11:05:56,079 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000002946C47BD10>
+2026-03-20 11:05:56,080 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:05:56,080 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:05:56,080 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:05:56,080 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:05:56,080 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:05:56,095 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=51077 local_address=None timeout=30.0 socket_options=None
+2026-03-20 11:05:56,096 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000002946C51D910>
+2026-03-20 11:05:56,097 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:05:56,097 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:05:56,097 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:05:56,098 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:05:56,098 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:01,177 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:01 GMT'), (b'Content-Length', b'232')])
+2026-03-20 11:06:01,177 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/dkktList "HTTP/1.1 200 OK"
+2026-03-20 11:06:01,178 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:01,178 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:01,179 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:01,179 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:01,179 - __main__ - INFO - 📦 Получены данные: 1 касс
+2026-03-20 11:06:01,179 - __main__ - INFO -   1. Серийный номер: 00106327428745 - АТОЛ FPrint-22ПТК
+2026-03-20 11:06:01,179 - __main__ - INFO - 📊 Итоговый список серийных номеров: ['00106327428745']
+2026-03-20 11:06:01,179 - __main__ - INFO - Получен новый список касс: ['00106327428745']
+2026-03-20 11:06:01,180 - __main__ - INFO - ✅ Список обновлен: 1 элементов
+2026-03-20 11:06:03,921 - __main__ - INFO - 🎯 select_kkt(00106327428745)
+2026-03-20 11:06:03,922 - __main__ - DEBUG - ❌ Нельзя регистрировать: нет выбранной кассы или информации
+2026-03-20 11:06:03,922 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:03,922 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:03,922 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:04,123 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=51077 local_address=None timeout=30.0 socket_options=None
+2026-03-20 11:06:04,127 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002946C51E480>
+2026-03-20 11:06:04,127 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:04,127 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:04,128 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:04,128 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:04,128 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:04,130 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:04 GMT')])
+2026-03-20 11:06:04,130 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:04,130 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:04,130 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:04,130 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:04,130 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:04,130 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:04,130 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:04,130 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:04,130 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:04,130 - __main__ - INFO - 📊 Статус регистрации для 00106327428745: []
+2026-03-20 11:06:04,130 - __main__ - DEBUG - ❌ Нельзя регистрировать: нет выбранной кассы или информации
+2026-03-20 11:06:04,130 - __main__ - DEBUG - ❌ Нельзя регистрировать: нет выбранной кассы или информации
+2026-03-20 11:06:04,131 - __main__ - INFO - 🔍 Загрузка информации для кассы: 00106327428745
+2026-03-20 11:06:04,131 - __main__ - INFO - 🔍 get_full_kkt_info() вызван
+2026-03-20 11:06:04,131 - __main__ - INFO - 📦 Возвращаем кэшированные данные
+2026-03-20 11:06:04,131 - __main__ - INFO - ✅ Информация загружена для 00106327428745
+2026-03-20 11:06:04,134 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:04,135 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:04,135 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:04,135 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:04,135 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:04,135 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:04,135 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:04,136 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:04,139 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:04 GMT')])
+2026-03-20 11:06:04,139 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:04,139 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:04,139 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:04,139 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:04,139 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:04,139 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:04,139 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:04,139 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:04,139 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:04,140 - __main__ - INFO - 📊 После загрузки инфо - статус регистрации 00106327428745: []
+2026-03-20 11:06:04,140 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:04,140 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:04,140 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:04,140 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:04,140 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:04,140 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:04,140 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:04,140 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:04,143 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:04 GMT')])
+2026-03-20 11:06:04,143 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:04,143 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:04,143 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:04,143 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:04,143 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:04,143 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:04,143 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:04,143 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:04,143 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:04,143 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:06:04,143 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:04,143 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:04,143 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:04,144 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:04,144 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:04,144 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:04,144 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:04,145 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:04,147 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:04 GMT')])
+2026-03-20 11:06:04,148 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:04,148 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:04,148 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:04,148 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:04,148 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:04,148 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:04,148 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:04,148 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:04,148 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:04,148 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:06:04,148 - __main__ - INFO - ✅ Информация обновлена для кассы: 00106327428745
+2026-03-20 11:06:09,686 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:09 GMT'), (b'Content-Length', b'232')])
+2026-03-20 11:06:09,687 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/dkktList "HTTP/1.1 200 OK"
+2026-03-20 11:06:09,687 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:09,687 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:09,688 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:09,688 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:09,688 - __main__ - INFO - 📦 Получены данные: 1 касс
+2026-03-20 11:06:09,688 - __main__ - INFO -   1. Серийный номер: 00106327428745 - АТОЛ FPrint-22ПТК
+2026-03-20 11:06:09,688 - __main__ - INFO - 📊 Итоговый список серийных номеров: ['00106327428745']
+2026-03-20 11:06:09,688 - __main__ - INFO - Получен новый список касс: ['00106327428745']
+2026-03-20 11:06:09,688 - __main__ - INFO - ✅ Список обновлен: 1 элементов
+2026-03-20 11:06:09,689 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:09,689 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:09,689 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:09,689 - httpcore.connection - DEBUG - close.started
+2026-03-20 11:06:09,689 - httpcore.connection - DEBUG - close.complete
+2026-03-20 11:06:09,689 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=51077 local_address=None timeout=30.0 socket_options=None
+2026-03-20 11:06:09,700 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002946C51D760>
+2026-03-20 11:06:09,700 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:09,700 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:09,701 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:09,702 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:09,702 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:09,704 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:09 GMT')])
+2026-03-20 11:06:09,704 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:09,704 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:09,705 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:09,705 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:09,705 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:09,705 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:09,705 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:09,705 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:09,705 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:09,705 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:06:09,705 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:09,705 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:09,705 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:09,705 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:09,706 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:09,706 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:09,706 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:09,706 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:09,710 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:09 GMT')])
+2026-03-20 11:06:09,710 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:09,711 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:09,711 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:09,711 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:09,711 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:09,711 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:09,711 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:09,711 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:09,711 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:09,711 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:06:25,792 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:25,792 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:25,792 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:25,793 - httpcore.connection - DEBUG - close.started
+2026-03-20 11:06:25,793 - httpcore.connection - DEBUG - close.complete
+2026-03-20 11:06:25,793 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=51077 local_address=None timeout=30.0 socket_options=None
+2026-03-20 11:06:25,793 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002946C580B00>
+2026-03-20 11:06:25,793 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:25,793 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:25,793 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:25,793 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:25,793 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:25,805 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:25 GMT')])
+2026-03-20 11:06:25,805 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:25,805 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:25,805 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:25,805 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:25,805 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:25,805 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:25,805 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:25,805 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:25,805 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:25,805 - __main__ - INFO - 🔍 Ручная проверка статуса для 00106327428745: []
+2026-03-20 11:06:25,805 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:25,805 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:25,806 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:25,806 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:25,806 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:25,806 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:25,807 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:25,807 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:25,811 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:25 GMT')])
+2026-03-20 11:06:25,811 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:25,811 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:25,811 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:25,811 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:25,811 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:25,811 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:25,811 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:25,811 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:25,811 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:25,811 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:06:25,811 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:25,811 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:25,811 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:25,811 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:25,811 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:25,811 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:25,812 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:25,812 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:25,815 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:25 GMT')])
+2026-03-20 11:06:25,816 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:25,816 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:25,816 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:25,816 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:25,816 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:25,817 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:25,817 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:25,817 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:25,817 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:25,817 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:06:55,803 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:55,804 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:55,804 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:55,804 - httpcore.connection - DEBUG - close.started
+2026-03-20 11:06:55,804 - httpcore.connection - DEBUG - close.complete
+2026-03-20 11:06:55,804 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=51077 local_address=None timeout=30.0 socket_options=None
+2026-03-20 11:06:55,817 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002946C582960>
+2026-03-20 11:06:55,817 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:55,817 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:55,817 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:55,817 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:55,817 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:55,819 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:55 GMT')])
+2026-03-20 11:06:55,820 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:55,820 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:55,820 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:55,820 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:55,820 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:55,820 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:55,821 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:55,821 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:55,821 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:55,821 - __main__ - INFO - 🔍 Ручная проверка статуса для 00106327428745: []
+2026-03-20 11:06:55,821 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:55,821 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:55,821 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:55,821 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:55,821 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:55,821 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:55,821 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:55,821 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:55,826 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:55 GMT')])
+2026-03-20 11:06:55,826 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:55,826 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:55,827 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:55,827 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:55,827 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:55,827 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:55,827 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:55,827 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:55,827 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:55,827 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:06:55,827 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:06:55,827 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:06:55,827 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:06:55,827 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:55,828 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:06:55,828 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:06:55,828 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:06:55,828 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:06:55,831 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:06:55 GMT')])
+2026-03-20 11:06:55,831 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:06:55,831 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:06:55,832 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:06:55,832 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:06:55,832 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:06:55,832 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:06:55,832 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:06:55,832 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:06:55,832 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:06:55,832 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:07:25,827 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:07:25,827 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:07:25,827 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:07:25,828 - httpcore.connection - DEBUG - close.started
+2026-03-20 11:07:25,828 - httpcore.connection - DEBUG - close.complete
+2026-03-20 11:07:25,828 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=51077 local_address=None timeout=30.0 socket_options=None
+2026-03-20 11:07:25,843 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002946C5982C0>
+2026-03-20 11:07:25,843 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:25,843 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:07:25,843 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:07:25,843 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:07:25,843 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:25,845 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:07:25 GMT')])
+2026-03-20 11:07:25,846 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:07:25,846 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:07:25,846 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:07:25,846 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:07:25,846 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:07:25,846 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:07:25,846 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:07:25,846 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:07:25,846 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:07:25,846 - __main__ - INFO - 🔍 Ручная проверка статуса для 00106327428745: []
+2026-03-20 11:07:25,846 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:07:25,846 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:07:25,846 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:07:25,846 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:25,846 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:07:25,847 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:07:25,847 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:07:25,847 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:25,849 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:07:25 GMT')])
+2026-03-20 11:07:25,849 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:07:25,849 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:07:25,849 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:07:25,849 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:07:25,849 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:07:25,849 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:07:25,849 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:07:25,849 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:07:25,849 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:07:25,849 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:07:25,849 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:07:25,849 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:07:25,849 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:07:25,849 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:25,849 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:07:25,849 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:07:25,849 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:07:25,849 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:25,857 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:07:25 GMT')])
+2026-03-20 11:07:25,857 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:07:25,857 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:07:25,857 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:07:25,857 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:07:25,857 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:07:25,857 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:07:25,857 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:07:25,857 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:07:25,858 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:07:25,858 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:07:55,854 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:07:55,854 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:07:55,854 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:07:55,855 - httpcore.connection - DEBUG - close.started
+2026-03-20 11:07:55,855 - httpcore.connection - DEBUG - close.complete
+2026-03-20 11:07:55,855 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=51077 local_address=None timeout=30.0 socket_options=None
+2026-03-20 11:07:55,869 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002946C599CD0>
+2026-03-20 11:07:55,869 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:55,869 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:07:55,869 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:07:55,869 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:07:55,869 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:55,878 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:07:55 GMT')])
+2026-03-20 11:07:55,879 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:07:55,879 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:07:55,879 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:07:55,879 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:07:55,880 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:07:55,880 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:07:55,880 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:07:55,880 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:07:55,880 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:07:55,881 - __main__ - INFO - 🔍 Ручная проверка статуса для 00106327428745: []
+2026-03-20 11:07:55,881 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:07:55,881 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:07:55,881 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:07:55,881 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:55,881 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:07:55,881 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:07:55,882 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:07:55,882 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:55,884 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:07:55 GMT')])
+2026-03-20 11:07:55,885 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:07:55,885 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:07:55,885 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:07:55,885 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:07:55,885 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:07:55,885 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:07:55,885 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:07:55,885 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:07:55,885 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:07:55,885 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:07:55,885 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:07:55,885 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:07:55,885 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:07:55,885 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:55,885 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:07:55,885 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:07:55,885 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:07:55,885 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:07:55,889 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:07:55 GMT')])
+2026-03-20 11:07:55,889 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:07:55,889 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:07:55,890 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:07:55,890 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:07:55,890 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:07:55,890 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:07:55,890 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:07:55,890 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:07:55,890 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:07:55,890 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:08:25,891 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:08:25,891 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:08:25,891 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:08:25,891 - httpcore.connection - DEBUG - close.started
+2026-03-20 11:08:25,891 - httpcore.connection - DEBUG - close.complete
+2026-03-20 11:08:25,892 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=51077 local_address=None timeout=30.0 socket_options=None
+2026-03-20 11:08:25,907 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002946C59B650>
+2026-03-20 11:08:25,908 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:25,909 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:08:25,909 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:08:25,909 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:08:25,909 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:25,915 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:08:25 GMT')])
+2026-03-20 11:08:25,916 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:08:25,916 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:08:25,917 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:08:25,917 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:08:25,917 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:08:25,917 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:08:25,917 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:08:25,917 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:08:25,917 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:08:25,917 - __main__ - INFO - 🔍 Ручная проверка статуса для 00106327428745: []
+2026-03-20 11:08:25,917 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:08:25,917 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:08:25,917 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:08:25,917 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:25,917 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:08:25,917 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:08:25,918 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:08:25,918 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:25,921 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:08:25 GMT')])
+2026-03-20 11:08:25,921 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:08:25,921 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:08:25,921 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:08:25,921 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:08:25,921 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:08:25,921 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:08:25,921 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:08:25,921 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:08:25,921 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:08:25,921 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:08:25,921 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:08:25,921 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:08:25,921 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:08:25,922 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:25,922 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:08:25,922 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:08:25,922 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:08:25,922 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:25,930 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:08:25 GMT')])
+2026-03-20 11:08:25,930 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:08:25,930 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:08:25,930 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:08:25,930 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:08:25,930 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:08:25,930 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:08:25,930 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:08:25,930 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:08:25,930 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:08:25,930 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:08:55,936 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:08:55,936 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:08:55,936 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:08:55,937 - httpcore.connection - DEBUG - close.started
+2026-03-20 11:08:55,937 - httpcore.connection - DEBUG - close.complete
+2026-03-20 11:08:55,938 - httpcore.connection - DEBUG - connect_tcp.started host='127.0.0.1' port=51077 local_address=None timeout=30.0 socket_options=None
+2026-03-20 11:08:55,938 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000002946C5838C0>
+2026-03-20 11:08:55,938 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:55,938 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:08:55,938 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:08:55,939 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:08:55,939 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:55,942 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:08:55 GMT')])
+2026-03-20 11:08:55,943 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:08:55,943 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:08:55,943 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:08:55,944 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:08:55,944 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:08:55,944 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:08:55,944 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:08:55,944 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:08:55,945 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:08:55,945 - __main__ - INFO - 🔍 Ручная проверка статуса для 00106327428745: []
+2026-03-20 11:08:55,945 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:08:55,945 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:08:55,945 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:08:55,945 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:55,946 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:08:55,946 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:08:55,946 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:08:55,946 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:55,950 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:08:55 GMT')])
+2026-03-20 11:08:55,950 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:08:55,950 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:08:55,950 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:08:55,950 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:08:55,950 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:08:55,950 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:08:55,950 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:08:55,950 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:08:55,950 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:08:55,950 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:08:55,950 - __main__ - DEBUG - 🔍 Проверка регистрации кассы: 00106327428745
+2026-03-20 11:08:55,950 - __main__ - DEBUG - 🔍 get_cm_instances() вызван - запрос актуальных данных
+2026-03-20 11:08:55,950 - __main__ - DEBUG - 📡 Выполняем запрос к API для получения экземпляров
+2026-03-20 11:08:55,950 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:55,951 - httpcore.http11 - DEBUG - send_request_headers.complete
+2026-03-20 11:08:55,951 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2026-03-20 11:08:55,951 - httpcore.http11 - DEBUG - send_request_body.complete
+2026-03-20 11:08:55,951 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2026-03-20 11:08:55,956 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Content-Encoding', b'gzip'), (b'Content-Type', b'application/json'), (b'Vary', b'Accept-Encoding'), (b'Date', b'Fri, 20 Mar 2026 08:08:55 GMT')])
+2026-03-20 11:08:55,956 - httpx - INFO - HTTP Request: GET http://127.0.0.1:51077/api/v1/instances/info "HTTP/1.1 204 No Content"
+2026-03-20 11:08:55,956 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2026-03-20 11:08:55,956 - httpcore.http11 - DEBUG - receive_response_body.complete
+2026-03-20 11:08:55,956 - httpcore.http11 - DEBUG - response_closed.started
+2026-03-20 11:08:55,956 - httpcore.http11 - DEBUG - response_closed.complete
+2026-03-20 11:08:55,956 - __main__ - INFO - 📦 Получен объект instances_dto: Controlmodule_instances_DTO(instances=[])
+2026-03-20 11:08:55,956 - __main__ - INFO - 📋 Количество экземпляров: 0
+2026-03-20 11:08:55,956 - __main__ - INFO - ℹ️ Нет зарегистрированных экземпляров (пустой ответ от API)
+2026-03-20 11:08:55,956 - __main__ - INFO - 📊 Касса 00106327428745 зарегистрирована: []
+2026-03-20 11:08:55,956 - __main__ - DEBUG - 📊 Статус регистрации для 00106327428745: зарегистрирована=[], можно регистрировать=True
+2026-03-20 11:09:10,661 - __main__ - INFO - 🔒 Закрытие приложения
+2026-03-20 11:09:10,661 - __main__ - INFO - 🔒 Закрытие KKTController
+2026-03-20 11:09:10,661 - __main__ - INFO - 🔒 Закрытие KKTCommand
+2026-03-20 11:09:10,661 - asyncio - DEBUG - Using proactor: IocpProactor
+2026-03-20 11:09:10,662 - httpcore.connection - DEBUG - close.started
+2026-03-20 11:09:10,662 - httpcore.connection - DEBUG - close.complete
+2026-03-20 11:09:10,662 - __main__ - INFO - 🔒 Сетевое соединение закрыто асинхронно
+2026-03-20 11:09:10,662 - __main__ - INFO - 🔒 Закрытие TSPIOTCommand

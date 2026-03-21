@@ -79,12 +79,12 @@ Item {
                             width: 12
                             height: 12
                             radius: 6
-                            color: lmController && lmController.isConnected ? "#4caf50" : "#f44336"
+                            color: lmController && lmController.isConfigured ? "#4caf50" : "#f44336"
                         }
 
                         Text {
-                            text: lmController && lmController.isConnected ? "Подключено" : "Отключено"
-                            color: lmController && lmController.isConnected ? "#4caf50" : "#f44336"
+                            text: lmController && lmController.isConfigured ? "Подключено" : "Отключено"
+                            color: lmController && lmController.isConfigured ? "#4caf50" : "#f44336"
                             font.pixelSize: 12
                             font.bold: true
                         }
@@ -93,7 +93,7 @@ Item {
                     // Индикатор загрузки
                     BusyIndicator {
                         Layout.alignment: Qt.AlignHCenter
-                        running: lmController ? lmController.isLoading : false
+                        running: appStorage ? appStorage.isLoading : false
                         visible: running
                         implicitWidth: 30
                         implicitHeight: 30
@@ -122,14 +122,12 @@ Item {
                         }
 
                         Text { text: "IP адрес:"; font.pixelSize: 13; color: "#666" }
-                        RowLayout {
+                        Text {  // ← Убрал RowLayout, он здесь не нужен
+                            text: lmController ? lmController.ip : "—"  // ← ИСПРАВЛЕНО: теперь используем ip
+                            font.pixelSize: 13
+                            font.family: "Courier"
+                            color: "#333"
                             Layout.fillWidth: true
-                            Text {
-                                text: lmController ? lmController.ip : "—"
-                                font.pixelSize: 13
-                                font.family: "Courier"
-                                color: "#333"
-                            }
                         }
 
                         Text { text: "Последняя синхр.:"; font.pixelSize: 13; color: "#666" }
@@ -147,6 +145,7 @@ Item {
                             color: "#333"
                         }
 
+                        // Если есть поле login, добавьте его
                         Text { text: "Логин:"; font.pixelSize: 13; color: "#666" }
                         Text {
                             text: lmController ? lmController.login : "—"
@@ -154,6 +153,7 @@ Item {
                             color: "#333"
                         }
                     }
+
 
                     // Кнопки управления
                     RowLayout {
@@ -165,9 +165,10 @@ Item {
                             Layout.preferredWidth: 140
                             Layout.preferredHeight: 36
                             text: "⚙️ Настроить"
+                            enabled: appStorage && appStorage.currentKkt !== ""
 
                             background: Rectangle {
-                                color: parent.hovered ? "#1976D2" : "#2196F3"
+                                color: parent.enabled ? (parent.hovered ? "#1976D2" : "#2196F3") : "#bdbdbd"
                                 radius: 5
                             }
 
@@ -182,9 +183,10 @@ Item {
 
                             onClicked: {
                                 if (lmController) {
-                                    tempLmAddress = lmController.ip !== "—" ? lmController.ip : ""
-                                    tempLmPort = lmController.ip !== "—" ? 50063 : 0
-                                    tempLmLogin = lmController.login !== "—" ? lmController.login : ""
+                                    // Здесь нужно получить текущие настройки
+                                    tempLmAddress = ""
+                                    tempLmPort = 50063
+                                    tempLmLogin = ""
                                     tempLmPassword = ""
                                     activeDialog = "lmchz"
                                     settingsDialogOpen = true
@@ -196,9 +198,10 @@ Item {
                             Layout.preferredWidth: 140
                             Layout.preferredHeight: 36
                             text: "🔄 Обновить"
+                            enabled: appStorage && appStorage.currentKkt !== ""
 
                             background: Rectangle {
-                                color: parent.hovered ? "#388e3c" : "#4caf50"
+                                color: parent.enabled ? (parent.hovered ? "#388e3c" : "#4caf50") : "#bdbdbd"
                                 radius: 5
                             }
 
@@ -212,8 +215,8 @@ Item {
                             }
 
                             onClicked: {
-                                if (lmController) {
-                                    lmController.refresh_all()
+                                if (appStorage) {
+                                    appStorage.get_application_status()
                                 }
                             }
                         }
@@ -225,16 +228,35 @@ Item {
                         Layout.preferredHeight: 30
                         color: "#ffebee"
                         radius: 4
-                        visible: lmController && lmController.errorMessage !== ""
+                        visible: lmController && lmController.error !== ""
 
                         Text {
                             anchors.fill: parent
                             anchors.margins: 5
-                            text: lmController ? lmController.errorMessage : ""
+                            text: lmController ? lmController.error : ""
                             color: "#c62828"
                             font.pixelSize: 12
                             verticalAlignment: Text.AlignVCenter
                             wrapMode: Text.WordWrap
+                        }
+                    }
+
+                    // Сообщение, если не выбран ККТ
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
+                        color: "#fff3e0"
+                        radius: 4
+                        visible: appStorage && appStorage.currentKkt === ""
+
+                        Text {
+                            anchors.fill: parent
+                            anchors.margins: 5
+                            text: "⚠️ Сначала выберите кассу в секции ККТ"
+                            color: "#ff9800"
+                            font.pixelSize: 12
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
                         }
                     }
                 }
@@ -243,7 +265,7 @@ Item {
             // ==================== ГИС МТ СЕКЦИЯ ====================
             Rectangle {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 320
+                Layout.preferredHeight: 380
                 color: "white"
                 radius: 8
                 border.color: "#e0e0e0"
@@ -272,147 +294,161 @@ Item {
                             width: 12
                             height: 12
                             radius: 6
-                            color: gisMtController && gisMtController.selectedInstance !== "" ? "#4caf50" : "#ff9800"
+                            color: gisMtController && gisMtController.licenseActive ? "#4caf50" : "#ff9800"
                         }
 
                         Text {
-                            text: gisMtController && gisMtController.selectedInstance !== "" ?
-                                  "Инстанс выбран" : "Не выбран"
-                            color: gisMtController && gisMtController.selectedInstance !== "" ? "#4caf50" : "#ff9800"
+                            text: gisMtController && gisMtController.licenseActive ?
+                                  "Лицензия активна" : "Лицензия не активна"
+                            color: gisMtController && gisMtController.licenseActive ? "#4caf50" : "#ff9800"
                             font.pixelSize: 12
                             font.bold: true
-                        }
-                    }
-
-                    // Выбор инстанса
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 10
-
-                        Text {
-                            text: "Инстанс:"
-                            font.pixelSize: 14
-                            font.bold: true
-                            color: "#333"
-                        }
-
-                        ComboBox {
-                            id: instanceCombo
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 36
-
-                            model: gisMtController ? gisMtController.instances : []
-
-                            displayText: currentIndex === -1 ? "Выберите инстанс..." : currentText
-
-                            onActivated: function(index) {
-                                if (gisMtController) {
-                                    gisMtController.select_instance(model[index])
-                                }
-                            }
-
-                            delegate: ItemDelegate {
-                                width: instanceCombo.width
-                                text: modelData
-
-                                contentItem: Text {
-                                    text: modelData
-                                    color: "black"
-                                    font.pixelSize: 13
-                                    font.family: "Courier"
-                                    leftPadding: 12
-                                    verticalAlignment: Text.AlignVCenter
-                                    elide: Text.ElideRight
-                                }
-                            }
-
-                            background: Rectangle {
-                                color: "white"
-                                border.color: instanceCombo.pressed ? "#2196F3" : "#c0c0c0"
-                                border.width: 1
-                                radius: 5
-                            }
-                        }
-
-                        Button {
-                            Layout.preferredWidth: 36
-                            Layout.preferredHeight: 36
-                            text: "↻"
-
-                            onClicked: {
-                                if (gisMtController) {
-                                    gisMtController.refresh_instances()
-                                }
-                            }
-
-                            background: Rectangle {
-                                color: parent.hovered ? "#e0e0e0" : "#f5f5f5"
-                                border.color: "#c0c0c0"
-                                radius: 5
-                            }
-
-                            contentItem: Text {
-                                text: parent.text
-                                font.pixelSize: 18
-                                color: "#333"
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
                         }
                     }
 
                     // Индикатор загрузки
                     BusyIndicator {
                         Layout.alignment: Qt.AlignHCenter
-                        running: gisMtController ? gisMtController.isLoading : false
+                        running: appStorage ? appStorage.isLoading : false
                         visible: running
                         implicitWidth: 30
                         implicitHeight: 30
                     }
 
-                    // Информация об инстансе
+                    // Информация о текущем инстансе (берется из выбранного ККТ)
                     Rectangle {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 120
+                        Layout.preferredHeight: 240
                         color: "#f8f9fa"
                         radius: 6
                         border.color: "#e0e0e0"
                         border.width: 1
-                        visible: gisMtController && gisMtController.selectedInstance !== ""
+                        visible: appStorage && appStorage.currentKkt !== ""
 
                         ColumnLayout {
                             anchors.fill: parent
                             anchors.margins: 12
                             spacing: 8
 
+                            // Заголовок
+                            RowLayout {
+                                Layout.fillWidth: true
+
+                                Text {
+                                    text: "Информация для инстанса:"
+                                    font.pixelSize: 14
+                                    font.bold: true
+                                    color: "#333"
+                                }
+
+                                Text {
+                                    text: appStorage ? appStorage.currentKkt : ""
+                                    font.pixelSize: 14
+                                    font.family: "Courier"
+                                    color: "#2196F3"
+                                    font.bold: true
+                                }
+                            }
+
+                            // Основная информация
                             GridLayout {
                                 Layout.fillWidth: true
                                 columns: 2
                                 columnSpacing: 20
-                                rowSpacing: 8
+                                rowSpacing: 6
 
-                                Text { text: "Статус:"; font.pixelSize: 13; color: "#666" }
+                                Text { text: "Статус ГИС МТ:"; font.pixelSize: 12; color: "#666" }
                                 Text {
-                                    text: gisMtController && gisMtController.currentSettings ?
-                                          (gisMtController.currentSettings.compatibilityMode ? "Активен" : "Неактивен") : "Неизвестно"
-                                    font.pixelSize: 13
-                                    color: gisMtController && gisMtController.currentSettings &&
-                                           gisMtController.currentSettings.compatibilityMode ? "#4caf50" : "#ff9800"
+                                    text: gisMtController ? gisMtController.status : "—"
+                                    font.pixelSize: 12
+                                    color: gisMtController && gisMtController.status === "Подключено" ? "#4caf50" : "#f44336"
                                 }
 
-                                Text { text: "ID:"; font.pixelSize: 13; color: "#666" }
+                                Text { text: "Версия:"; font.pixelSize: 12; color: "#666" }
                                 Text {
-                                    text: gisMtController ? gisMtController.selectedInstance : ""
-                                    font.pixelSize: 13
+                                    text: gisMtController ? gisMtController.licenseVersion : "—"
+                                    font.pixelSize: 12
                                     font.family: "Courier"
                                     color: "#333"
                                 }
 
-                                Text { text: "Последняя синхр.:"; font.pixelSize: 13; color: "#666" }
+                                Text { text: "Состояние:"; font.pixelSize: 12; color: "#666" }
                                 Text {
-                                    text: "только что"
-                                    font.pixelSize: 13
+                                    text: gisMtController ? gisMtController.licenseState : "—"
+                                    font.pixelSize: 12
                                     color: "#333"
+                                }
+
+                                Text { text: "Последнее соединение:"; font.pixelSize: 12; color: "#666" }
+                                Text {
+                                    text: gisMtController ? gisMtController.lastConnection : "—"
+                                    font.pixelSize: 12
+                                    color: "#333"
+                                }
+                            }
+
+                            // Секция лицензии
+                            Rectangle {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 70
+                                color: gisMtController && gisMtController.licenseActive ? "#e8f5e8" : "#fff3e0"
+                                radius: 4
+                                border.color: gisMtController && gisMtController.licenseActive ? "#a5d6a5" : "#ffe0b2"
+                                border.width: 1
+
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 8
+                                    spacing: 4
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+
+                                        Text {
+                                            text: "📄 Лицензия:"
+                                            font.pixelSize: 11
+                                            font.bold: true
+                                            color: "#666"
+                                        }
+
+                                        Item { Layout.fillWidth: true }
+
+                                        Rectangle {
+                                            width: 8
+                                            height: 8
+                                            radius: 4
+                                            color: gisMtController && gisMtController.licenseActive ? "#4caf50" : "#ff9800"
+                                        }
+
+                                        Text {
+                                            text: gisMtController && gisMtController.licenseActive ? "Активна" : "Не активна"
+                                            color: gisMtController && gisMtController.licenseActive ? "#4caf50" : "#ff9800"
+                                            font.pixelSize: 10
+                                            font.bold: true
+                                        }
+                                    }
+
+                                    GridLayout {
+                                        Layout.fillWidth: true
+                                        columns: 2
+                                        columnSpacing: 15
+                                        rowSpacing: 2
+
+                                        Text { text: "Действует до:"; font.pixelSize: 10; color: "#666" }
+                                        Text {
+                                            text: gisMtController ? gisMtController.licenseActiveTill : "—"
+                                            font.pixelSize: 10
+                                            font.bold: gisMtController && gisMtController.licenseActive
+                                            color: gisMtController && gisMtController.licenseActive ? "#2e7d32" : "#666"
+                                        }
+
+                                        Text { text: "Последняя синхр.:"; font.pixelSize: 10; color: "#666" }
+                                        Text {
+                                            text: gisMtController ? gisMtController.licenseLastSync : "—"
+                                            font.pixelSize: 10
+                                            color: "#666"
+                                        }
+                                    }
                                 }
                             }
 
@@ -421,9 +457,10 @@ Item {
                                 Layout.preferredWidth: 120
                                 Layout.preferredHeight: 30
                                 text: "⚙️ Настройки"
+                                enabled: appStorage && appStorage.currentKkt !== ""
 
                                 background: Rectangle {
-                                    color: parent.hovered ? "#1976D2" : "#2196F3"
+                                    color: parent.enabled ? (parent.hovered ? "#1976D2" : "#2196F3") : "#bdbdbd"
                                     radius: 4
                                 }
 
@@ -437,10 +474,10 @@ Item {
                                 }
 
                                 onClicked: {
-                                    if (gisMtController && gisMtController.currentSettings) {
-                                        tempGismtCompatibilityMode = gisMtController.currentSettings.compatibilityMode
-                                        tempGismtAllowRemote = gisMtController.currentSettings.allowRemote
-                                        tempGismtAddress = gisMtController.currentSettings.gismtAddress
+                                    if (gisMtController && gisMtController.settings) {
+                                        tempGismtCompatibilityMode = gisMtController.settings.compatibilityMode || false
+                                        tempGismtAllowRemote = gisMtController.settings.allowRemote || false
+                                        tempGismtAddress = gisMtController.settings.gismtAddress || ""
                                         activeDialog = "gismt"
                                         settingsDialogOpen = true
                                     }
@@ -449,7 +486,7 @@ Item {
                         }
                     }
 
-                    // Сообщение, если инстанс не выбран
+                    // Сообщение, если ККТ не выбран
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 80
@@ -457,7 +494,7 @@ Item {
                         radius: 6
                         border.color: "#e0e0e0"
                         border.width: 1
-                        visible: !gisMtController || gisMtController.selectedInstance === ""
+                        visible: !appStorage || appStorage.currentKkt === ""
 
                         ColumnLayout {
                             anchors.centerIn: parent
@@ -468,7 +505,7 @@ Item {
                                 Layout.alignment: Qt.AlignHCenter
                             }
                             Text {
-                                text: "Выберите инстанс из списка"
+                                text: "Сначала выберите кассу в секции ККТ"
                                 color: "#666"
                                 font.pixelSize: 13
                                 Layout.alignment: Qt.AlignHCenter
@@ -536,7 +573,7 @@ Item {
 
                             onActivated: function(index) {
                                 if (kktController) {
-                                    kktController.select_kkt(model[index])
+                                    kktController.selectKkt(model[index])
                                 }
                             }
 
@@ -569,7 +606,7 @@ Item {
 
                             onClicked: {
                                 if (kktController) {
-                                    kktController.refresh_kkt_list()
+                                    kktController.refreshList()
                                 }
                             }
 
@@ -592,7 +629,7 @@ Item {
                     // Индикатор загрузки
                     BusyIndicator {
                         Layout.alignment: Qt.AlignHCenter
-                        running: kktController ? kktController.isLoading : false
+                        running: appStorage ? appStorage.isLoading : false
                         visible: running
                         implicitWidth: 30
                         implicitHeight: 30
@@ -613,41 +650,12 @@ Item {
                             anchors.margins: 12
                             spacing: 8
 
-                            // Заголовок со статусом смены
-                            RowLayout {
-                                Layout.fillWidth: true
-
-                                Text {
-                                    text: "Информация о кассе"
-                                    font.pixelSize: 14
-                                    font.bold: true
-                                    color: "#333"
-                                }
-
-                                Item { Layout.fillWidth: true }
-
-                                Rectangle {
-                                    width: 80
-                                    height: 22
-                                    radius: 11
-                                    color: {
-                                        if (!kktController || !kktController.kktInfo) return "#9e9e9e"
-                                        switch(kktController.kktInfo.shiftState) {
-                                            case "Открыта": return "#4caf50"
-                                            case "Закрыта": return "#9e9e9e"
-                                            default: return "#ff9800"
-                                        }
-                                    }
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "Смена: " + (kktController && kktController.kktInfo ?
-                                              kktController.kktInfo.shiftState : "")
-                                        color: "white"
-                                        font.pixelSize: 11
-                                        font.bold: true
-                                    }
-                                }
+                            // Заголовок
+                            Text {
+                                text: "Информация о кассе"
+                                font.pixelSize: 14
+                                font.bold: true
+                                color: "#333"
                             }
 
                             // Сетка информации
@@ -714,41 +722,34 @@ Item {
                     }
 
                     // Кнопка регистрации
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 50
-                        color: "transparent"
-                        visible: kktController && kktController.canRegister &&
-                                 kktController && kktController.kktInfo !== null
+                    Button {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.preferredWidth: 250
+                        Layout.preferredHeight: 40
+                        text: "📝 Зарегистрировать кассу"
+                        visible: kktController && kktController.canRegister
 
-                        Button {
-                            anchors.centerIn: parent
-                            width: 250
-                            height: 40
-                            text: "📝 Зарегистрировать кассу"
+                        enabled: kktController && !appStorage.isLoading
 
-                            enabled: kktController && !kktController.isLoading
+                        background: Rectangle {
+                            color: parent.enabled ?
+                                   (parent.pressed ? "#2e7d32" : (parent.hovered ? "#388e3c" : "#4caf50")) :
+                                   "#bdbdbd"
+                            radius: 20
+                        }
 
-                            background: Rectangle {
-                                color: parent.enabled ?
-                                       (parent.pressed ? "#2e7d32" : (parent.hovered ? "#388e3c" : "#4caf50")) :
-                                       "#bdbdbd"
-                                radius: 20
-                            }
+                        contentItem: Text {
+                            text: parent.text
+                            color: "white"
+                            font.pixelSize: 14
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
 
-                            contentItem: Text {
-                                text: parent.text
-                                color: "white"
-                                font.pixelSize: 14
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
-
-                            onClicked: {
-                                if (kktController) {
-                                    kktController.register_current_kkt()
-                                }
+                        onClicked: {
+                            if (kktController) {
+                                kktController.registerCurrentKkt()
                             }
                         }
                     }
@@ -757,7 +758,7 @@ Item {
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         visible: kktController && !kktController.canRegister &&
-                                kktController && kktController.selectedKkt
+                                kktController && kktController.selectedKkt !== ""
                         text: "✅ Касса уже зарегистрирована"
                         color: "#4caf50"
                         font.pixelSize: 13
@@ -801,14 +802,10 @@ Item {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "Статус: " + (lmController && lmController.isConnected ?
-                          "ЛМ ЧЗ ✓" : "ЛМ ЧЗ ✗") + " | " +
-                          (gisMtController && gisMtController.selectedInstance !== "" ?
-                          "ГИС МТ ✓" : "ГИС МТ ✗") + " | " +
-                          (kktController && kktController.selectedKkt ?
-                          "ККТ ✓" : "ККТ ✗")
+                    text: "Текущая касса: " + (appStorage && appStorage.currentKkt ? appStorage.currentKkt : "не выбрана")
                     color: "#666"
                     font.pixelSize: 12
+                    font.bold: true
                 }
             }
         }
@@ -835,21 +832,22 @@ Item {
 
         title: {
             switch(activeDialog) {
-                case "gismt": return "Настройки ГИС МТ"
-                case "lmchz": return "Параметры подключения к ЛМ ЧЗ"
+                case "gismt": return "Настройки ГИС МТ для кассы " + (appStorage ? appStorage.currentKkt : "")
+                case "lmchz": return "Параметры подключения к ЛМ ЧЗ для кассы " + (appStorage ? appStorage.currentKkt : "")
                 default: return "Настройки"
             }
         }
 
         onAccepted: {
-            if (activeDialog === "gismt" && gisMtController) {
-                gisMtController.update_settings(
+            if (activeDialog === "gismt" && gisMtController && appStorage && appStorage.currentKkt) {
+                gisMtController.updateSettings(
+                    appStorage.currentKkt,
                     tempGismtCompatibilityMode,
                     tempGismtAllowRemote,
                     tempGismtAddress
                 )
             } else if (activeDialog === "lmchz" && lmController) {
-                lmController.save_settings(
+                lmController.saveSettings(
                     tempLmAddress,
                     tempLmPort,
                     tempLmLogin,
@@ -1016,52 +1014,14 @@ Item {
 
     // ==================== СВЯЗИ С КОНТРОЛЛЕРАМИ ====================
     Connections {
-        target: lmController
-
-        function onErrorOccurred(message) {
-            console.error("LM ЧЗ ошибка:", message)
-        }
-    }
-
-    Connections {
-        target: gisMtController
-
-        function onInstancesListChanged() {
-            console.log("ГИС МТ: список инстансов обновлен")
-            if (instanceCombo.count === 0) {
-                instanceCombo.currentIndex = -1
-            }
-        }
-
-        function onSelectedInstanceChanged() {
-            console.log("ГИС МТ: выбран инстанс:", gisMtController.selectedInstance)
-            var selected = gisMtController.selectedInstance
-            if (selected) {
-                var index = instanceCombo.find(selected)
-                if (index !== -1) {
-                    instanceCombo.currentIndex = index
-                }
-            }
-        }
-
-        function onOperationCompleted(result) {
-            console.log("ГИС МТ: операция завершена:", JSON.stringify(result))
-            if (result.success) {
-                settingsDialogOpen = false
-            }
-        }
-
-        function onErrorOccurred(message) {
-            console.error("ГИС МТ ошибка:", message)
-        }
-    }
-
-    Connections {
         target: kktController
 
         function onKktListChanged() {
             console.log("ККТ: список обновлен, касс:", kktController.kktList.length)
-            kktCombo.currentIndex = -1
+            // Автоматически выбираем первый элемент, если список не пуст и ничего не выбрано
+            if (kktController.kktList.length > 0 && kktController.selectedKkt === "") {
+                kktController.selectKkt(kktController.kktList[0])
+            }
         }
 
         function onSelectedKktChanged() {
@@ -1075,8 +1035,15 @@ Item {
             }
         }
 
-        function onRegistrationResultUpdated(result) {
-            console.log("ККТ: результат регистрации:", result)
+
+        // Добавьте этот обработчик
+        function onKktInfoChanged(info) {
+            console.log("ККТ: информация обновлена:", JSON.stringify(info))
+            // UI автоматически обновится через привязку kktController.kktInfo
+        }
+
+        function onRegistrationResultChanged(result) {
+            console.log("ККТ: результат регистрации:", JSON.stringify(result))
             registrationDialog.success = result.success
             registrationDialog.message = result.message ||
                 (result.success ? "Касса успешно зарегистрирована" : "Ошибка регистрации")
@@ -1084,17 +1051,39 @@ Item {
         }
     }
 
+    Connections {
+        target: gisMtController
+
+        function onGismtStatusChanged() {
+            console.log("ГИС МТ: статус обновлен")
+        }
+
+        function onLicenseInfoChanged() {
+            console.log("ГИС МТ: информация о лицензии обновлена")
+        }
+    }
+
+    Connections {
+        target: lmController
+
+        function onLmStatusChanged() {
+            console.log("ЛМ ЧЗ: статус обновлен")
+        }
+    }
+
+    Connections {
+        target: appStorage
+
+        function onErrorOccurred(message) {
+            console.error("Ошибка:", message)
+        }
+    }
+
     // Инициализация при загрузке
     Component.onCompleted: {
         console.log("Главное окно загружено")
-        if (kktController) {
-            kktController.refresh_kkt_list()
-        }
-        if (gisMtController) {
-            gisMtController.refresh_instances()
-        }
-        if (lmController) {
-            lmController.refresh_all()
-        }
+         if (appStorage) {
+        appStorage.notify_ui_ready()
+         }
     }
 }

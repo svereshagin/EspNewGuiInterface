@@ -87,14 +87,18 @@ pip install pyinstaller
 # Компиляция ресурсов
 pyside6-rcc resources.qrc -o resources_rc.py
 
-# Сборка в один файл
-pyinstaller --onefile --windowed \
-            --name "ТС ПИоТ" \
-            --add-data "ui;ui" \
-            --hidden-import PySide6.QtQml \
-            --hidden-import PySide6.QtCore \
-            --hidden-import PySide6.QtGui \
-            src/main.py
+# Сборка в один файл (WINDOWS)
+pyinstaller --onefile --windowed `
+    --name "ТС-ПИоТ" `
+    --add-data "src;src" `
+    --hidden-import PySide6.QtQml `
+    --hidden-import PySide6.QtCore `
+    --hidden-import PySide6.QtGui `
+    --hidden-import PySide6.QtQuick `
+    --hidden-import PySide6.QtQuickWidgets `
+    --collect-data PySide6 `
+    --paths . `
+    src/main.py
 
 # Готовый .exe будет в папке dist/
 ```
@@ -110,7 +114,6 @@ pyside6-rcc resources.qrc -o resources_rc.py
 pyinstaller --onefile --windowed \
     --name "ТС-ПИоТ" \
     --add-data "src:src" \
-    --add-data "ui:ui" \
     --hidden-import PySide6.QtQml \
     --hidden-import PySide6.QtCore \
     --hidden-import PySide6.QtGui \

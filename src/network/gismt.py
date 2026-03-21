@@ -74,7 +74,7 @@ class GisMtNetwork(ApiClient):
     Только реальные запросы к API, без тестовых данных
     """
 
-    __INSTANCES_URL = "/api/v1/instances"
+    __INSTANCES_URL = "/api/v1/instances/info/"
     __SETTINGS_URL = "/api/v1/settings"
 
     def __init__(self):
@@ -91,17 +91,18 @@ class GisMtNetwork(ApiClient):
             )
         return self._client
 
-    def get_instances(self) -> Optional[InstancesListResponseDTO]:
+    def get_instances(self, esm_id) -> Optional[InstancesListResponseDTO]:
         """
         Получает список всех инстансов
         GET /api/v1/instances
         """
         try:
             client = self._get_client()
-            response = client.get(self.__INSTANCES_URL)
+            response = client.get(self.__INSTANCES_URL+esm_id)
 
             if response.status_code == 200:
                 data = response.json()
+                print(data)
                 return InstancesListResponseDTO.from_dict(data)
             else:
                 print(f"❌ Ошибка получения инстансов: {response.status_code}")

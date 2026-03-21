@@ -172,6 +172,7 @@ class ControlmoduleNetwork(ApiClient):
         Получает статус соединений всех систем для указанного экземпляра
         GET /api/v1/status/{id}
         """
+        print(instance_id)
         try:
             client = self._get_client()
             url = f"{self.__CONTROLMODULE_ALL_SYSTEMS_STATUS}{instance_id}"
@@ -190,9 +191,11 @@ class ControlmoduleNetwork(ApiClient):
                 print(f"   Все системы OK: {status_dto.all_systems_ok}")
 
                 return status_dto
-            else:
-                print(f"❌ Ошибка получения статуса: {response.status_code}")
-                return None
+            data = response.json()
+            print(data)
+            # else:
+            #     print(f"❌ Ошибка получения статуса: {response.status_code}")
+            #     return None
 
         except Exception as e:
             print(f"❌ Ошибка в get_systems_status: {e}")
