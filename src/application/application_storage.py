@@ -253,28 +253,30 @@ class ApplicationStorage(QObject):
         logger.info("🔄 Обновление списка ККТ")
         self._set_loading(True)
 
-        try:
+        def fetch_kkt_list():
             import asyncio
-            from concurrent.futures import ThreadPoolExecutor
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                # Таймаут прямо на уровне корутины
+                return loop.run_until_complete(
+                    asyncio.wait_for(self._kkt_network.get_dkktList(), timeout=10.0)
+                )
+            finally:
+                loop.close()
 
-            def get_kkt_list_sync():
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    cash_info = loop.run_until_complete(self._kkt_network.get_dkktList())
-                    return cash_info
-                finally:
-                    loop.close()
+        worker = AsyncWorker(fetch_kkt_list)
+        worker.signals.result.connect(self._on_kkt_list_fetched)
+        worker.signals.error.connect(self._on_kkt_list_error)
+        self.threadpool.start(worker)
 
-            with ThreadPoolExecutor() as executor:
-                future = executor.submit(get_kkt_list_sync)
-                cash_info = future.result(timeout=30)
-
+    def _on_kkt_list_fetched(self, cash_info):
+        """Обрабатывает результат получения списка ККТ (вызывается в главном потоке)"""
+        try:
             if cash_info and cash_info.kkt:
                 self._kkt_list = [kkt.kktSerial for kkt in cash_info.kkt]
-                logger.info(f"📋 Найдено ККТ через KKTNetwork: {len(self._kkt_list)}")
+                logger.info(f"📋 Найдено ККТ: {len(self._kkt_list)}")
 
-                # Кэшируем информацию и проверяем регистрацию
                 for kkt in cash_info.kkt:
                     info_dict = {
                         'kktSerial': kkt.kktSerial,
@@ -289,24 +291,42 @@ class ApplicationStorage(QObject):
                     }
                     self._kkt_info_cache[kkt.kktSerial] = info_dict
 
-                    # Проверяем статус регистрации для каждой кассы
                     is_registered = self.check_kkt_registration(kkt.kktSerial)
                     self.registrationStatusChanged.emit(kkt.kktSerial, is_registered)
-                    logger.info(f"📊 Касса {kkt.kktSerial}: зарегистрирована={is_registered}")
 
-                # Если нет выбранного ККТ, выбираем первый
                 if not self._current_kkt and self._kkt_list:
                     self.set_current_kkt(self._kkt_list[0])
             else:
                 self._kkt_list = []
-                logger.warning("⚠️ Нет доступных ККТ через KKTNetwork")
+                logger.warning("⚠️ Нет доступных ККТ")
+                self.errorOccurred.emit("Кассы не найдены")
 
             self.kktListChanged.emit(self._kkt_list)
 
         except Exception as e:
-            logger.error(f"❌ Ошибка обновления списка ККТ: {e}")
+            logger.error(f"❌ Ошибка обработки списка ККТ: {e}")
+            self.errorOccurred.emit(f"Ошибка: {e}")
         finally:
             self._set_loading(False)
+
+    def _on_kkt_list_error(self, error: Exception):
+        """Обрабатывает ошибку получения списка ККТ"""
+        logger.error(f"❌ Ошибка получения списка ККТ: {error}")
+
+        # Различаем таймаут и другие ошибки
+        import asyncio
+        if isinstance(error, asyncio.TimeoutError):
+            msg = "ККТ не загружены: превышено время ожидания ответа от сервера (10 сек)"
+        elif "connect" in str(error).lower():
+            msg = "ККТ не загружены: нет соединения с сервером"
+        else:
+            msg = f"ККТ не загружены: {error}"
+
+        logger.error(f"❌ {msg}")
+        self._kkt_list = []
+        self.kktListChanged.emit(self._kkt_list)
+        self.errorOccurred.emit(msg)
+        self._set_loading(False)
 
     @Slot(str)
     def set_current_kkt(self, kkt_id: str):
@@ -330,63 +350,70 @@ class ApplicationStorage(QObject):
         """Загружает детальную информацию о ККТ"""
         logger.info(f"🔍 Загрузка информации о ККТ: {kkt_serial}")
 
-        try:
-            # Проверяем кэш
-            if kkt_serial in self._kkt_info_cache:
-                logger.info(f"📦 Используем кэшированную информацию для {kkt_serial}")
-                self.kktInfoUpdated.emit(self._kkt_info_cache[kkt_serial])
-                return
+        # Проверяем кэш
+        if kkt_serial in self._kkt_info_cache:
+            logger.info(f"📦 Используем кэшированную информацию для {kkt_serial}")
+            self.kktInfoUpdated.emit(self._kkt_info_cache[kkt_serial])
+            return
 
-            # Получаем полную информацию о всех кассах
-            # Используем существующий KKTNetwork
+        def fetch_kkt_info():
             import asyncio
-            from concurrent.futures import ThreadPoolExecutor
-
-            def get_kkt_info_sync():
-                # Здесь нужно использовать ваш KKTNetwork для получения списка касс
-                # Это синхронная обертка вокруг асинхронного метода
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    # Получаем список всех касс
-                    cash_info = loop.run_until_complete(self._kkt_network.get_dkktList())
-                    if cash_info and cash_info.kkt:
-                        for kkt in cash_info.kkt:
-                            if kkt.kktSerial == kkt_serial:
-                                info_dict = {
-                                    'kktSerial': kkt.kktSerial,
-                                    'fnSerial': kkt.fnSerial,
-                                    'kktInn': kkt.kktInn,
-                                    'kktRnm': kkt.kktRnm,
-                                    'modelName': kkt.modelName,
-                                    'dkktVersion': kkt.dkktVersion,
-                                    'developer': kkt.developer,
-                                    'manufacturer': kkt.manufacturer,
-                                    'shiftState': kkt.shiftState.value if hasattr(kkt.shiftState, 'value') else str(
-                                        kkt.shiftState)
-                                }
-                                return info_dict
-                except Exception as e:
-                    logger.error(f"❌ Ошибка загрузки информации о ККТ: {e}")
-                    return None
-                finally:
-                    loop.close()
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                cash_info = loop.run_until_complete(
+                    asyncio.wait_for(self._kkt_network.get_dkktList(), timeout=10.0)
+                )
+                if cash_info and cash_info.kkt:
+                    for kkt in cash_info.kkt:
+                        if kkt.kktSerial == kkt_serial:
+                            return {
+                                'kktSerial': kkt.kktSerial,
+                                'fnSerial': kkt.fnSerial,
+                                'kktInn': kkt.kktInn,
+                                'kktRnm': kkt.kktRnm,
+                                'modelName': kkt.modelName,
+                                'dkktVersion': kkt.dkktVersion,
+                                'developer': kkt.developer,
+                                'manufacturer': kkt.manufacturer,
+                                'shiftState': kkt.shiftState.value if hasattr(kkt.shiftState, 'value') else str(
+                                    kkt.shiftState)
+                            }
                 return None
+            finally:
+                loop.close()
 
-            # Запускаем в отдельном потоке, чтобы не блокировать UI
-            with ThreadPoolExecutor() as executor:
-                future = executor.submit(get_kkt_info_sync)
-                info_dict = future.result(timeout=10)
+        worker = AsyncWorker(fetch_kkt_info)
+        worker.signals.result.connect(
+            lambda info: self._on_kkt_info_fetched(kkt_serial, info)
+        )
+        worker.signals.error.connect(
+            lambda err: self._on_kkt_info_error(kkt_serial, err)
+        )
+        self.threadpool.start(worker)
 
-                if info_dict:
-                    self._kkt_info_cache[kkt_serial] = info_dict
-                    self.kktInfoUpdated.emit(info_dict)
-                    logger.info(f"✅ Информация о ККТ {kkt_serial} загружена")
-                else:
-                    logger.warning(f"⚠️ Информация о ККТ {kkt_serial} не найдена")
+    def _on_kkt_info_fetched(self, kkt_serial: str, info_dict):
+        """Обрабатывает результат загрузки информации о ККТ"""
+        if info_dict:
+            self._kkt_info_cache[kkt_serial] = info_dict
+            self.kktInfoUpdated.emit(info_dict)
+            logger.info(f"✅ Информация о ККТ {kkt_serial} загружена")
+        else:
+            logger.warning(f"⚠️ Касса {kkt_serial} не найдена в списке")
+            self.errorOccurred.emit(f"Касса {kkt_serial} не найдена")
 
-        except Exception as e:
-            logger.error(f"❌ Ошибка в _load_kkt_info: {e}")
+    def _on_kkt_info_error(self, kkt_serial: str, error: Exception):
+        import asyncio
+        if isinstance(error, asyncio.TimeoutError):
+            msg = f"Не удалось загрузить данные кассы {kkt_serial}: превышено время ожидания"
+        elif "connect" in str(error).lower():
+            msg = f"Не удалось загрузить данные кассы {kkt_serial}: нет соединения с сервером"
+        else:
+            msg = f"Не удалось загрузить данные кассы {kkt_serial}: {error}"
+
+        logger.error(f"❌ {msg}")
+        self.errorOccurred.emit(msg)
+
 
     def get_kkt_info(self, kkt_serial: str) -> Optional[Dict[str, Any]]:
         """Возвращает информацию о ККТ"""
