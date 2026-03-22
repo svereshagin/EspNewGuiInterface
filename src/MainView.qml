@@ -953,7 +953,7 @@ Item {
                     TextField {
                         Layout.fillWidth: true
                         text: tempLmPassword
-                        placeholderText: "••••••"
+                        placeholderText: "admin"
                         echoMode: TextInput.Password
                         onTextChanged: tempLmPassword = text
                     }
@@ -1068,8 +1068,10 @@ Item {
     // Инициализация при загрузке
     Component.onCompleted: {
         console.log("Главное окно загружено")
-        if (kktController) {
-            kktController.refreshList()
-        }
+        Qt.callLater(function () {
+            if (kktController) {
+                kktController.refreshList()
+            }
+        })
     }
 }

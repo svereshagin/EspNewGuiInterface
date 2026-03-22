@@ -260,7 +260,7 @@ class ApplicationStorage(QObject):
             try:
                 # Таймаут прямо на уровне корутины
                 return loop.run_until_complete(
-                    asyncio.wait_for(self._kkt_network.get_dkktList(), timeout=10.0)
+                    asyncio.wait_for(self._kkt_network.get_dkktList(), timeout=60.0)
                 )
             finally:
                 loop.close()
@@ -316,11 +316,11 @@ class ApplicationStorage(QObject):
         # Различаем таймаут и другие ошибки
         import asyncio
         if isinstance(error, asyncio.TimeoutError):
-            msg = "ККТ не загружены: превышено время ожидания ответа от сервера (10 сек)"
+            msg = "ККТ не загружены: превышено время ожидания ответа от сервера (60 сек)"
         elif "connect" in str(error).lower():
             msg = "ККТ не загружены: нет соединения с сервером"
         else:
-            msg = f"ККТ не загружены: {error}"
+            msg = f"ККТ не загружены: {type(error).__name__}"
 
         logger.error(f"❌ {msg}")
         self._kkt_list = []
@@ -362,7 +362,7 @@ class ApplicationStorage(QObject):
             asyncio.set_event_loop(loop)
             try:
                 cash_info = loop.run_until_complete(
-                    asyncio.wait_for(self._kkt_network.get_dkktList(), timeout=10.0)
+                    asyncio.wait_for(self._kkt_network.get_dkktList(), timeout=60.0)
                 )
                 if cash_info and cash_info.kkt:
                     for kkt in cash_info.kkt:
