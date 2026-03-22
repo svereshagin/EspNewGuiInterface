@@ -98,8 +98,9 @@ class ApplicationStorage(QObject):
         self._lm_version: str = ""
         self._lm_status_text: str = ""
         self._lm_inn: str = ""
-        self._lm_ip: str = "—"
-        self._lm_login: str = "—"
+        self._lm_ip: str = "127.0.0.1"
+        self._lm_login: str = "admin"
+        self._lm_password: str = "admin"
         self._lm_port: int = 0
 
 
@@ -162,6 +163,12 @@ class ApplicationStorage(QObject):
     def lmLogin(self) -> str:
         """Логин ЛМ ЧЗ"""
         return self._lm_login
+
+    @property
+    def lmPassword(self) -> str:
+        """Логин ЛМ ЧЗ"""
+        return self._lm_password
+
 
     @property
     def lmPort(self) -> int:
@@ -603,7 +610,8 @@ class ApplicationStorage(QObject):
                 self._lm_ip = settings.address
                 self._lm_port = settings.port
                 self._lm_login = settings.login
-                logger.info(f"📋 Настройки ЛМ: {self._lm_ip}:{self._lm_port}, логин: {self._lm_login}")
+                self._lm_password = settings.password
+                logger.info(f"📋 Настройки ЛМ: {self._lm_ip}:{self._lm_port}, логин: {self._lm_login}, пароль: {self._lm_password}")
                 self.lmStatusChanged.emit()  # Обновляем UI
 
         except Exception as e:
@@ -712,6 +720,11 @@ class ApplicationStorage(QObject):
 
         logger.info(f"📝 Обновление настроек ЛМ для {self._current_kkt}")
         self._set_loading(True)
+
+        address = address or "127.0.0.1"
+        port = port or 50063
+        login = login or "admin"
+        password = password or "admin"
 
         try:
             request = RequestSetupRegime(

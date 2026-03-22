@@ -247,10 +247,10 @@ Item {
 
                             onClicked: {
                                 if (lmController) {
-                                    tempLmAddress = ""
-                                    tempLmPort = 50063
-                                    tempLmLogin = ""
-                                    tempLmPassword = ""
+                                    tempLmAddress = lmController.ip || "127.0.0.1"
+                                    tempLmPort = lmController.port || 50063
+                                    tempLmLogin = lmController.login || "admin"
+                                    tempLmPassword = lmController.password || "admin"  // ← подтягиваем из property
                                     activeDialog = "lmchz"
                                     settingsDialogOpen = true
                                 }
