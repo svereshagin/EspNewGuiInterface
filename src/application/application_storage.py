@@ -21,6 +21,10 @@ from src.domain.kkt.entity import CashInfo, KktInfo
 logger = logging.getLogger(__name__)
 
 
+REGISTRATION_CACHE_TTL = 55
+
+
+
 class RegistrationWorker(QThread):
     """Поток для регистрации ККТ"""
     finished = Signal(dict)
@@ -147,6 +151,9 @@ class ApplicationStorage(QObject):
         self.uiReady.connect(self._on_ui_ready, Qt.ConnectionType.QueuedConnection)
 
         self._registration_cache: Dict[str, tuple] = {}
+        self._pending_registration_checks: set = set()
+
+
         # Сетевые клиенты
         self._controlmodule_network = ControlmoduleNetwork()
         self._gismt_network = GisMtNetwork()
@@ -377,8 +384,7 @@ class ApplicationStorage(QObject):
                     }
                     self._kkt_info_cache[kkt.kktSerial] = info_dict
 
-                    is_registered = self.check_kkt_registration(kkt.kktSerial)
-                    self.registrationStatusChanged.emit(kkt.kktSerial, is_registered)
+                    self._update_registration_status(kkt.kktSerial)
 
                 if not self._current_kkt and self._kkt_list:
                     self.set_current_kkt(self._kkt_list[0])
@@ -513,18 +519,21 @@ class ApplicationStorage(QObject):
         return {}
 
     def _update_registration_status(self, kkt_serial: str):
-        """Асинхронное обновление статуса регистрации"""
         if not kkt_serial:
             return
 
-        logger.debug(f"🔄 Обновление статуса регистрации для {kkt_serial}")
+        # Уже есть активный воркер для этой кассы — не запускаем дубль
+        if kkt_serial in self._pending_registration_checks:
+            return
 
-        # Проверяем кэш
-        if kkt_serial in self._registration_cache:
-            cache_time, cached_value = self._registration_cache.get(kkt_serial, (0, False))
-            if time.time() - cache_time < 30:  # Кэш на 30 секунд
+        cache_entry = self._registration_cache.get(kkt_serial)
+        if cache_entry:
+            cache_time, cached_value = cache_entry
+            if time.time() - cache_time < REGISTRATION_CACHE_TTL:
                 self.registrationStatusChanged.emit(kkt_serial, cached_value)
                 return
+
+        self._pending_registration_checks.add(kkt_serial)
 
         def check_reg():
             try:
@@ -544,7 +553,7 @@ class ApplicationStorage(QObject):
         self.threadpool.start(worker)
 
     def _on_registration_checked(self, kkt_serial: str, is_registered: bool):
-        """Обработка результата проверки регистрации"""
+        self._pending_registration_checks.discard(kkt_serial)  # ← убираем из pending
         self._registration_cache[kkt_serial] = (time.time(), is_registered)
         self.registrationStatusChanged.emit(kkt_serial, is_registered)
         logger.info(f"📊 Касса {kkt_serial} зарегистрирована: {is_registered}")
@@ -844,14 +853,19 @@ class ApplicationStorage(QObject):
         self._registration_worker.progress.connect(self.registrationProgress.emit)
         self._registration_worker.start()
 
+
+
+
     def _on_registration_finished(self, result: dict):
         self._set_loading(False)
         self.registrationCompleted.emit(result)
 
-        if result.get('success'):
-            self.refresh_kkt_list()
-            if result.get('kkt_serial'):
-                self._update_registration_status(result['kkt_serial'])
+        if result.get('kkt_serial'):
+            # Инвалидируем кэш принудительно — пользователь только что что-то сделал
+            self._registration_cache.pop(result['kkt_serial'], None)
+            self._pending_registration_checks.discard(result['kkt_serial'])
+            # Теперь следующий вызов гарантированно пойдёт на сервер
+            self._update_registration_status(result['kkt_serial'])
 
     # ==================== Вспомогательные методы ====================
 
@@ -862,33 +876,17 @@ class ApplicationStorage(QObject):
             self.loadingChanged.emit(loading)
 
     # ==================== Закрытие ресурсов ====================
+
     @Slot(str, result=bool)
     def check_kkt_registration(self, kkt_serial: str) -> bool:
-        """
-        Проверяет, зарегистрирована ли касса
-
-        Args:
-            kkt_serial: серийный номер ККТ
-
-        Returns:
-            True если зарегистрирована, False если нет
-        """
-        logger.info(f"🔍 Проверка регистрации для {kkt_serial}")
-
-        try:
-            instances = self._controlmodule_network._get_cm_instances()
-            if instances and instances.instances:
-                registered_ids = [inst.id for inst in instances.instances]
-                is_registered = kkt_serial in registered_ids
-                logger.info(f"📊 Касса {kkt_serial} зарегистрирована: {is_registered}")
-                logger.info(f"📋 Зарегистрированные ID: {registered_ids}")
-                return is_registered
-            else:
-                logger.info(f"📋 Нет зарегистрированных экземпляров")
-                return False
-        except Exception as e:
-            logger.error(f"❌ Ошибка проверки регистрации: {e}")
-            return False
+        """Только читает кэш — безопасно вызывать из QML/главного потока"""
+        cache_entry = self._registration_cache.get(kkt_serial)
+        if cache_entry:
+            _, cached_value = cache_entry
+            return cached_value
+        # Кэша нет — запускаем фоновое обновление, пока возвращаем False
+        self._update_registration_status(kkt_serial)
+        return False
 
     def close(self):
         """Закрывает все соединения"""

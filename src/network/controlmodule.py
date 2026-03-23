@@ -3,7 +3,7 @@ from typing import Optional, List
 from dataclasses import dataclass
 from src.core.config import ApiSettings
 from src.network.base import ApiClient
-
+import threading
 
 @dataclass
 class ComponentStatusDTO:
@@ -165,7 +165,7 @@ class ControlmoduleNetwork(ApiClient):
 
     def __init__(self):
         super().__init__()
-        self._client = None
+        self._local = threading.local()
 
     def get_systems_status(self, instance_id: str) -> Optional[SystemsStatusResponseDTO]:
         """
@@ -201,15 +201,14 @@ class ControlmoduleNetwork(ApiClient):
             print(f"❌ Ошибка в get_systems_status: {e}")
             return None
 
-    def _get_client(self):
-        """Получает или создает HTTPX клиент"""
-        if self._client is None or self._client.is_closed:
-            self._client = httpx.Client(
+    def _get_client(self) -> httpx.Client:
+        client = getattr(self._local, 'client', None)
+        if client is None or client.is_closed:
+            self._local.client = httpx.Client(
                 base_url=self.config.orchestrator_url,
                 timeout=30.0
             )
-            print("✅ Создан новый HTTPX клиент")
-        return self._client
+        return self._local.client
 
     def _get_cm_info(self) -> Optional[Controlmodule_info_DTO]:
         """Получает общую информацию о драйвере"""
@@ -327,6 +326,10 @@ class ControlmoduleNetwork(ApiClient):
             print(f"❌ Ошибка в _get_cm_instance_info: {e}")
             return None
 
+        def close(self):
+            client = getattr(self._local, 'client', None)
+            if client and not client.is_closed:
+                client.close()
 
 # # ВЫЗОВ МЕТОДА ДЛЯ ИНСТАНСА 00106327428745
 # if __name__ == "__main__":
