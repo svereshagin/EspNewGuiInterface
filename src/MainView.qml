@@ -20,7 +20,78 @@ Item {
     property bool settingsDialogOpen: false
     property string activeDialog: "" // "gismt", "lmchz", "kkt"
 
-    // Основной контейнер с скроллом
+    // ==================== БАННЕР ОШИБОК (глобальный, поверх всего) ====================
+    Rectangle {
+        id: errorBanner
+        z: 100
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottomMargin: 20
+        anchors.leftMargin: 20
+        anchors.rightMargin: 20
+        height: 48
+        radius: 8
+        color: "#ffebee"
+        border.color: "#ef9a9a"
+        border.width: 1
+        visible: opacity > 0
+        opacity: 0
+
+        property string errorText: ""
+
+        Behavior on opacity {
+            NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+        }
+
+        RowLayout {
+            anchors.fill: parent
+            anchors.margins: 12
+            spacing: 8
+
+            Text { text: "⚠️"; font.pixelSize: 16 }
+
+            Text {
+                Layout.fillWidth: true
+                text: errorBanner.errorText
+                color: "#c62828"
+                font.pixelSize: 13
+                elide: Text.ElideRight
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            Text {
+                text: "✕"
+                color: "#c62828"
+                font.pixelSize: 16
+                font.bold: true
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        errorHideTimer.stop()
+                        errorBanner.opacity = 0
+                    }
+                }
+            }
+        }
+
+        Timer {
+            id: errorHideTimer
+            interval: 5000
+            repeat: false
+            onTriggered: errorBanner.opacity = 0
+        }
+
+        function showError(msg) {
+            errorBanner.errorText = msg
+            errorBanner.opacity = 1
+            errorHideTimer.restart()
+        }
+    }
+
+    // ==================== ОСНОВНОЙ КОНТЕЙНЕР ====================
     ScrollView {
         anchors.fill: parent
         anchors.margins: 20
@@ -61,7 +132,6 @@ Item {
                     anchors.margins: 16
                     spacing: 12
 
-                    // Заголовок секции
                     RowLayout {
                         Layout.fillWidth: true
 
@@ -74,7 +144,6 @@ Item {
 
                         Item { Layout.fillWidth: true }
 
-                        // Статус подключения
                         Rectangle {
                             width: 12
                             height: 12
@@ -90,7 +159,6 @@ Item {
                         }
                     }
 
-                    // Индикатор загрузки
                     BusyIndicator {
                         Layout.alignment: Qt.AlignHCenter
                         running: appStorage ? appStorage.isLoading : false
@@ -99,7 +167,6 @@ Item {
                         implicitHeight: 30
                     }
 
-                    // Информационная сетка
                     GridLayout {
                         Layout.fillWidth: true
                         columns: 2
@@ -122,14 +189,12 @@ Item {
                         }
 
                         Text { text: "IP адрес:"; font.pixelSize: 13; color: "#666" }
-                        RowLayout {
+                        Text {
+                            text: lmController ? lmController.ip : "—"
+                            font.pixelSize: 13
+                            font.family: "Courier"
+                            color: "#333"
                             Layout.fillWidth: true
-                            Text {
-                                text: lmController ? lmController.lastSync : "—"
-                                font.pixelSize: 13
-                                font.family: "Courier"
-                                color: "#333"
-                            }
                         }
 
                         Text { text: "Последняя синхр.:"; font.pixelSize: 13; color: "#666" }
@@ -146,9 +211,15 @@ Item {
                             font.family: "Courier"
                             color: "#333"
                         }
+
+                        Text { text: "Логин:"; font.pixelSize: 13; color: "#666" }
+                        Text {
+                            text: lmController ? lmController.login : "—"
+                            font.pixelSize: 13
+                            color: "#333"
+                        }
                     }
 
-                    // Кнопки управления
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.topMargin: 8
@@ -176,11 +247,10 @@ Item {
 
                             onClicked: {
                                 if (lmController) {
-                                    // Здесь нужно получить текущие настройки
-                                    tempLmAddress = ""
-                                    tempLmPort = 50063
-                                    tempLmLogin = ""
-                                    tempLmPassword = ""
+                                    tempLmAddress = lmController.ip || "127.0.0.1"
+                                    tempLmPort = lmController.port || 50063
+                                    tempLmLogin = lmController.login || "admin"
+                                    tempLmPassword = lmController.password || "admin"  // ← подтягиваем из property
                                     activeDialog = "lmchz"
                                     settingsDialogOpen = true
                                 }
@@ -215,7 +285,6 @@ Item {
                         }
                     }
 
-                    // Сообщение об ошибке
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 30
@@ -233,8 +302,7 @@ Item {
                             wrapMode: Text.WordWrap
                         }
                     }
-                    
-                    // Сообщение, если не выбран ККТ
+
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 30
@@ -269,7 +337,6 @@ Item {
                     anchors.margins: 16
                     spacing: 12
 
-                    // Заголовок секции
                     RowLayout {
                         Layout.fillWidth: true
 
@@ -282,7 +349,6 @@ Item {
 
                         Item { Layout.fillWidth: true }
 
-                        // Статус
                         Rectangle {
                             width: 12
                             height: 12
@@ -299,7 +365,6 @@ Item {
                         }
                     }
 
-                    // Индикатор загрузки
                     BusyIndicator {
                         Layout.alignment: Qt.AlignHCenter
                         running: appStorage ? appStorage.isLoading : false
@@ -308,7 +373,6 @@ Item {
                         implicitHeight: 30
                     }
 
-                    // Информация о текущем инстансе (берется из выбранного ККТ)
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 240
@@ -323,7 +387,6 @@ Item {
                             anchors.margins: 12
                             spacing: 8
 
-                            // Заголовок
                             RowLayout {
                                 Layout.fillWidth: true
 
@@ -343,7 +406,6 @@ Item {
                                 }
                             }
 
-                            // Основная информация
                             GridLayout {
                                 Layout.fillWidth: true
                                 columns: 2
@@ -380,7 +442,6 @@ Item {
                                 }
                             }
 
-                            // Секция лицензии
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 70
@@ -479,7 +540,6 @@ Item {
                         }
                     }
 
-                    // Сообщение, если ККТ не выбран
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 80
@@ -522,7 +582,6 @@ Item {
                     anchors.margins: 16
                     spacing: 12
 
-                    // Заголовок секции
                     RowLayout {
                         Layout.fillWidth: true
 
@@ -543,7 +602,6 @@ Item {
                         }
                     }
 
-                    // Выбор кассы
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 10
@@ -619,7 +677,6 @@ Item {
                         }
                     }
 
-                    // Индикатор загрузки
                     BusyIndicator {
                         Layout.alignment: Qt.AlignHCenter
                         running: appStorage ? appStorage.isLoading : false
@@ -628,7 +685,6 @@ Item {
                         implicitHeight: 30
                     }
 
-                    // Информация о кассе
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 200
@@ -643,7 +699,6 @@ Item {
                             anchors.margins: 12
                             spacing: 8
 
-                            // Заголовок
                             Text {
                                 text: "Информация о кассе"
                                 font.pixelSize: 14
@@ -651,7 +706,6 @@ Item {
                                 color: "#333"
                             }
 
-                            // Сетка информации
                             GridLayout {
                                 Layout.fillWidth: true
                                 columns: 2
@@ -714,14 +768,12 @@ Item {
                         }
                     }
 
-                    // Кнопка регистрации
                     Button {
                         Layout.alignment: Qt.AlignHCenter
                         Layout.preferredWidth: 250
                         Layout.preferredHeight: 40
                         text: "📝 Зарегистрировать кассу"
                         visible: kktController && kktController.canRegister
-
                         enabled: kktController && !appStorage.isLoading
 
                         background: Rectangle {
@@ -747,18 +799,16 @@ Item {
                         }
                     }
 
-                    // Сообщение о статусе
                     Text {
                         Layout.alignment: Qt.AlignHCenter
                         visible: kktController && !kktController.canRegister &&
-                                kktController && kktController.selectedKkt !== ""
+                                 kktController && kktController.selectedKkt !== ""
                         text: "✅ Касса уже зарегистрирована"
                         color: "#4caf50"
                         font.pixelSize: 13
                         font.bold: true
                     }
 
-                    // Сообщение, если касса не выбрана
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 80
@@ -854,7 +904,6 @@ Item {
             settingsDialogOpen = false
         }
 
-        // Контент для ГИС МТ
         Loader {
             anchors.fill: parent
             sourceComponent: {
@@ -864,7 +913,6 @@ Item {
             }
         }
 
-        // Компонент настроек ГИС МТ
         Component {
             id: gismtSettings
             ColumnLayout {
@@ -905,7 +953,6 @@ Item {
             }
         }
 
-        // Компонент настроек ЛМ ЧЗ
         Component {
             id: lmchzSettings
             ColumnLayout {
@@ -953,7 +1000,7 @@ Item {
                     TextField {
                         Layout.fillWidth: true
                         text: tempLmPassword
-                        placeholderText: "admin"
+                        placeholderText: "••••••"
                         echoMode: TextInput.Password
                         onTextChanged: tempLmPassword = text
                     }
@@ -962,7 +1009,7 @@ Item {
         }
     }
 
-    // Диалог регистрации ККТ
+    // ==================== ДИАЛОГ РЕГИСТРАЦИИ ККТ ====================
     Dialog {
         id: registrationDialog
         title: "Регистрация кассы"
@@ -1011,7 +1058,6 @@ Item {
 
         function onKktListChanged() {
             console.log("ККТ: список обновлен, касс:", kktController.kktList.length)
-            // Автоматически выбираем первый элемент, если список не пуст и ничего не выбрано
             if (kktController.kktList.length > 0 && kktController.selectedKkt === "") {
                 kktController.selectKkt(kktController.kktList[0])
             }
@@ -1026,6 +1072,10 @@ Item {
                     kktCombo.currentIndex = index
                 }
             }
+        }
+
+        function onKktInfoChanged(info) {
+            console.log("ККТ: информация обновлена:", JSON.stringify(info))
         }
 
         function onRegistrationResultChanged(result) {
@@ -1062,16 +1112,17 @@ Item {
 
         function onErrorOccurred(message) {
             console.error("Ошибка:", message)
+            errorBanner.showError(message)
         }
     }
 
-    // Инициализация при загрузке
+    // ==================== ИНИЦИАЛИЗАЦИЯ ====================
     Component.onCompleted: {
         console.log("Главное окно загружено")
-        Qt.callLater(function () {
-            if (kktController) {
-                kktController.refreshList()
-            }
-        })
+        if (appStorage) {
+            Qt.callLater(function() {
+                appStorage.notify_ui_ready()
+            })
+        }
     }
 }
