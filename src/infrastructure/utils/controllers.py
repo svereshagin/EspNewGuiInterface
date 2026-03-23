@@ -220,7 +220,7 @@ class KKTController(QObject):
             return
 
         result = self._storage.register_kkt(
-            kkt_serial=self._storage.currentKkt,
+            kkt_serial=str(self._storage.currentKkt),
             fn_serial=kkt_info.get('fnSerial', ''),
             kkt_inn=kkt_info.get('kktInn', '')
         )

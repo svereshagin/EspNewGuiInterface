@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject, Signal, Slot, Property, QTimer, Qt, QRunnable, QThreadPool
+from PySide6.QtCore import QObject, Signal, Slot, Property, QTimer, Qt, QRunnable, QThreadPool, QThread
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 import time
@@ -19,6 +19,81 @@ from src.network.tspiot import TspiotSetup, RequestCreateInstanceTSPIOT_DTO, Req
 from src.domain.kkt.entity import CashInfo, KktInfo
 
 logger = logging.getLogger(__name__)
+
+
+class RegistrationWorker(QThread):
+    """Поток для регистрации ККТ"""
+    finished = Signal(dict)
+    progress = Signal(str)  # для статуса
+
+    def __init__(self, tspiot_setup, kkt_serial, fn_serial, kkt_inn):
+        super().__init__()
+        self._tspiot_setup = tspiot_setup
+        self.kkt_serial = kkt_serial
+        self.fn_serial = fn_serial
+        self.kkt_inn = kkt_inn
+        self._is_cancelled = False
+
+    def cancel(self):
+        self._is_cancelled = True
+
+    def run(self):
+        try:
+            self.progress.emit("Создание ESM сервиса...")
+            if self._is_cancelled:
+                self.finished.emit({'success': False, 'message': 'Отменено пользователем'})
+                return
+
+            create_data = RequestCreateInstanceTSPIOT_DTO(kkt_serial=self.kkt_serial)
+            create_result = self._tspiot_setup.create_esm_service(create_data)
+
+            if not create_result.success and create_result.error_message == "Служба с таким именем уже существует":
+                self.progress.emit("ESM уже существует, получаем ID...")
+                # TODO: получить существующий ID
+            elif not create_result.success:
+                self.finished.emit({
+                    'success': False,
+                    'message': f"Ошибка создания ESM: {create_result.error_message}"
+                })
+                return
+
+            self.progress.emit("Регистрация TSPIOT...")
+            if self._is_cancelled:
+                self.finished.emit({'success': False, 'message': 'Отменено пользователем'})
+                return
+
+            register_data = RequestRegistrationTSPIOT_DTO(
+                id=create_result.tspiot_id,
+                kktSerial=self.kkt_serial,
+                fnSerial=self.fn_serial,
+                kktInn=self.kkt_inn
+            )
+            register_result = self._tspiot_setup.register_tspiot(register_data)
+
+            success = register_result.get('success', False) if isinstance(register_result, dict) else False
+
+            if success:
+                self.finished.emit({
+                    'success': True,
+                    'message': 'Регистрация успешно завершена',
+                    'kkt_serial': self.kkt_serial
+                })
+            else:
+                error = register_result.get('error_message', 'Неизвестная ошибка')
+                self.finished.emit({
+                    'success': False,
+                    'message': f"Ошибка регистрации: {error}",
+                    'kkt_serial': self.kkt_serial
+                })
+
+        except Exception as e:
+            self.finished.emit({
+                'success': False,
+                'message': f"Ошибка: {e}",
+                'kkt_serial': self.kkt_serial
+            })
+
+
 
 
 class AsyncWorker(QRunnable):
@@ -59,6 +134,10 @@ class ApplicationStorage(QObject):
     statusUpdated = Signal(dict)
     licenseInfoChanged = Signal()
     registrationStatusChanged = Signal(str, bool)
+
+    registrationCompleted = Signal(dict)
+    registrationProgress = Signal(str)
+
 
     kktInfoUpdated = Signal(dict)
     def __init__(self, parent=None):
@@ -753,48 +832,26 @@ class ApplicationStorage(QObject):
 
     # ==================== Регистрация ККТ ====================
 
-    @Slot(str, str, str, result=dict)
-    def register_kkt(self, kkt_serial: str, fn_serial: str, kkt_inn: str) -> dict:
-        """Регистрирует ККТ"""
-        logger.info(f"📝 Регистрация ККТ: {kkt_serial}")
+    @Slot(str, str, str)
+    def register_kkt(self, kkt_serial: str, fn_serial: str, kkt_inn: str):
+        """Асинхронная регистрация"""
         self._set_loading(True)
 
-        try:
-            # Шаг 1: Создаем ESM сервис
-            create_data = RequestCreateInstanceTSPIOT_DTO(kkt_serial=kkt_serial)
-            create_result = self._tspiot_setup.create_esm_service(create_data)
+        self._registration_worker = RegistrationWorker(
+            self._tspiot_setup, kkt_serial, fn_serial, kkt_inn
+        )
+        self._registration_worker.finished.connect(self._on_registration_finished)
+        self._registration_worker.progress.connect(self.registrationProgress.emit)
+        self._registration_worker.start()
 
-            if not create_result.success:
-                return {
-                    'success': False,
-                    'message': f"Ошибка создания ESM: {create_result.error_message}"
-                }
+    def _on_registration_finished(self, result: dict):
+        self._set_loading(False)
+        self.registrationCompleted.emit(result)
 
-            # Шаг 2: Регистрируем TSPIOT
-            register_data = RequestRegistrationTSPIOT_DTO(
-                id=create_result.tspiot_id,
-                kktSerial=kkt_serial,
-                fnSerial=fn_serial,
-                kktInn=kkt_inn
-            )
-            register_result = self._tspiot_setup.register_tspiot(register_data)
-
-            success = register_result.get('success', False) if isinstance(register_result, dict) else False
-
-            if success:
-                logger.info(f"✅ ККТ {kkt_serial} успешно зарегистрирован")
-                # Обновляем список ККТ
-                self.refresh_kkt_list()
-                return {'success': True, 'message': 'Регистрация успешно завершена'}
-            else:
-                error = register_result.get('error_message', 'Неизвестная ошибка')
-                return {'success': False, 'message': f"Ошибка регистрации: {error}"}
-
-        except Exception as e:
-            logger.error(f"❌ Ошибка регистрации ККТ: {e}")
-            return {'success': False, 'message': f"Ошибка: {e}"}
-        finally:
-            self._set_loading(False)
+        if result.get('success'):
+            self.refresh_kkt_list()
+            if result.get('kkt_serial'):
+                self._update_registration_status(result['kkt_serial'])
 
     # ==================== Вспомогательные методы ====================
 

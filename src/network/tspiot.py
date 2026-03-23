@@ -118,9 +118,16 @@ class TspiotSetup:
             )
             logger.debug(f"PUT {self.ENDPOINT} → статус {response.status_code}")
 
+            data = response.json()
+
             if response.status_code == 200:
                 result_data = response.json()
                 return ResponseRegistrationTSPIOT_DTO(tspiotId=result_data.get("tspiotId"))
+            if response.status_code == 400 and data.get("code") == 1010: #всё ОК, иногда тспиот залагивает и лучше отдельно чекнуть этот вариант позже
+                return {
+                    'success': True,
+                }
+
             elif response.status_code == 403:
                 # Ошибка от оркестратора = несколько ИНН
                 error_data = response.json()
