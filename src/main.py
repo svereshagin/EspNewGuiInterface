@@ -3,11 +3,22 @@ import os
 from PySide6.QtWidgets import QApplication
 import logging
 
-from infrastructure.utils.common import check_compile_mode, resource_path
-from infrastructure.utils.qml_loader import MainQmlLoader
+
+print("=== DEBUG INFO ===")
+print(f"Python path: {sys.path}")
+print(f"Current dir: {os.getcwd()}")
+print(f"Frozen: {getattr(sys, 'frozen', False)}")
+print(f"MEIPASS: {getattr(sys, '_MEIPASS', None)}")
+print("=================")
+
+from src.infrastructure.utils.common import check_compile_mode, resource_path
+from src.infrastructure.utils.qml_loader import MainQmlLoader
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+
 
 
 def main():
