@@ -34,7 +34,7 @@ class RequestRegistrationTSPIOT_DTO:
 
 @dataclass
 class ResponseRegistrationTSPIOT_DTO:
-    tspiotId: str
+    tspiotId: str | None
     result: bool = False
     error_msg: Optional[str] = None
 
@@ -105,10 +105,11 @@ class TspiotSetup:
             logger.error(TspiotResponseMessages.TIMEOUT_ERROR.value)
             return None
 
-
-
-    def register_tspiot(self, data: RequestRegistrationTSPIOT_DTO):
-        """Регистрирует TSPIOT"""
+    def register_tspiot(self, data: RequestRegistrationTSPIOT_DTO) -> ResponseRegistrationTSPIOT_DTO:
+        """
+        Регистрирует TSPIOT
+        PUT -> "/api/v1/tspiot"
+        """
         payload = {
             "id": data.id,
             "kktSerial": data.kktSerial,
@@ -121,37 +122,82 @@ class TspiotSetup:
         try:
             response = client.put(
                 self.ENDPOINT,
-                json=payload  # Используем json, а не data
+                json=payload
             )
             logger.debug(f"PUT {self.ENDPOINT} → статус {response.status_code}")
 
-            if response.status_code == 201:
-                result_data = response.json()
-                return ResponseRegistrationTSPIOT_DTO(result=True, tspiotId=result_data.get("tspiotId"))
+            # Пытаемся получить тело ответа
+            response_data = response.json() if response.text else None
 
+            # Успешная регистрация (201 Created)
+            if response.status_code == 201 and response_data:
+                tspiot_id = response_data.get("tspiotId") or response_data.get("id")
+                logger.info(f"Network: TSPIOT зарегистрирован: {tspiot_id}")
+                return ResponseRegistrationTSPIOT_DTO(
+                    result=True,
+                    tspiotId=tspiot_id,
+                    error_msg=None
+                )
+
+            # Обработка ошибки 400 (Bad Request)
+            if response.status_code == 400 and response_data:
+                error = response_data.get('error', {})
+                error_code = error.get('code')
+                error_text = error.get('text', '')
+                error_description = error.get('description', '')
+
+                logger.warning(f"⚠️ Ошибка 400: code={error_code}, text={error_text}")
+
+                # Служба уже зарегистрирована
+                if error_code == 1011 or "уже зарегистрирована" in error_text:
+                    logger.info(f"TSPIOT для {data.kktSerial} уже зарегистрирован")
+                    return ResponseRegistrationTSPIOT_DTO(
+                        result=True,
+                        tspiotId=data.id,
+                        error_msg=None
+                    )
+
+                # Другая ошибка
+                error_msg = f"{error_text}: {error_description}" if error_description else error_text
+                return ResponseRegistrationTSPIOT_DTO(
+                    result=False,
+                    tspiotId=None,
+                    error_msg=error_msg
+                )
+
+            # Обработка других кодов ответа
+            logger.warning(f"Неожиданный статус {response.status_code}")
+            error_msg = response_data.get('text',
+                                          f"Сервер вернул {response.status_code}") if response_data else f"Сервер вернул {response.status_code}"
+            return ResponseRegistrationTSPIOT_DTO(
+                result=False,
+                tspiotId=None,
+                error_msg=error_msg
+            )
 
         except httpx.TimeoutException:
             logger.error(TspiotResponseMessages.TIMEOUT_ERROR.value)
-            return {
-                'success': False,
-                'error_message': TspiotResponseMessages.TIMEOUT_ERROR.value
-            }
+            return ResponseRegistrationTSPIOT_DTO(
+                result=False,
+                tspiotId=None,
+                error_msg=TspiotResponseMessages.TIMEOUT_ERROR.value
+            )
+
         except httpx.ConnectError:
             logger.error(TspiotResponseMessages.CONNECTION_ERROR.value)
-            return {
-                'success': False,
-                'error_message': TspiotResponseMessages.CONNECTION_ERROR.value
-            }
+            return ResponseRegistrationTSPIOT_DTO(
+                result=False,
+                tspiotId=None,
+                error_msg=TspiotResponseMessages.CONNECTION_ERROR.value
+            )
+
         except Exception as e:
             logger.error(f"Ошибка регистрации: {e}")
-            return {
-                'success': False,
-                'error_message': str(e)
-            }
-
-    def get_result(self) -> TspiotResult:
-        return self._result
-
+            return ResponseRegistrationTSPIOT_DTO(
+                result=False,
+                tspiotId=None,
+                error_msg=str(e)
+            )
 
 
     def create_esm_service(self, data: RequestCreateInstanceTSPIOT_DTO) -> TspiotResult:

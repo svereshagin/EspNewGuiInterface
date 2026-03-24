@@ -569,10 +569,12 @@ Item {
             }
 
             // ==================== ККТ СЕКЦИЯ ====================
-            // ==================== ККТ СЕКЦИЯ ====================
+
+// ==================== ККТ СЕКЦИЯ ====================
+// ==================== ККТ СЕКЦИЯ ====================
 Rectangle {
     Layout.fillWidth: true
-    Layout.preferredHeight: 380
+    Layout.preferredHeight: 480  // Увеличил высоту для всех полей
     color: "white"
     radius: 8
     border.color: "#e0e0e0"
@@ -687,8 +689,9 @@ Rectangle {
         }
 
         Rectangle {
+            id: kktInfoRect
             Layout.fillWidth: true
-            Layout.preferredHeight: 200
+            Layout.preferredHeight: 320
             color: "#f8f9fa"
             radius: 6
             border.color: "#e0e0e0"
@@ -711,10 +714,12 @@ Rectangle {
                     Layout.fillWidth: true
                     columns: 2
                     columnSpacing: 20
-                    rowSpacing: 6
+                    rowSpacing: 8
 
+                    // Серийный номер
                     Text { text: "Серийный номер:"; font.pixelSize: 12; color: "#666" }
                     Text {
+                        id: kktSerialText
                         text: appStorage && appStorage.currentKkt ? appStorage.currentKkt : ""
                         font.pixelSize: 12
                         font.family: "Courier"
@@ -722,63 +727,106 @@ Rectangle {
                         Layout.fillWidth: true
                     }
 
+                    // Модель
                     Text { text: "Модель:"; font.pixelSize: 12; color: "#666" }
                     Text {
-                        text: {
-                            var info = appStorage ? appStorage.get_current_kkt_info() : {}
-                            return info.modelName || "—"
-                        }
+                        id: modelText
+                        text: "—"
                         font.pixelSize: 12
                         color: "#333"
+                        Layout.fillWidth: true
                     }
 
+                    // Серийный номер ФН
                     Text { text: "СН ФН:"; font.pixelSize: 12; color: "#666" }
                     Text {
-                        text: {
-                            var info = appStorage ? appStorage.get_current_kkt_info() : {}
-                            return info.fnSerial || "—"
-                        }
+                        id: fnSerialText
+                        text: "—"
                         font.pixelSize: 12
                         font.family: "Courier"
                         color: "#333"
+                        Layout.fillWidth: true
                     }
 
+                    // Версия ДККТ
                     Text { text: "Версия ДККТ:"; font.pixelSize: 12; color: "#666" }
                     Text {
-                        text: {
-                            var info = appStorage ? appStorage.get_current_kkt_info() : {}
-                            return info.dkktVersion || "—"
-                        }
+                        id: dkktVersionText
+                        text: "—"
                         font.pixelSize: 12
                         color: "#333"
+                        Layout.fillWidth: true
                     }
 
+                    // ИНН
                     Text { text: "ИНН:"; font.pixelSize: 12; color: "#666" }
                     Text {
-                        text: {
-                            var info = appStorage ? appStorage.get_current_kkt_info() : {}
-                            return info.kktInn || "—"
-                        }
+                        id: innText
+                        text: "—"
                         font.pixelSize: 12
                         font.family: "Courier"
                         color: "#333"
+                        Layout.fillWidth: true
                     }
 
+                    // РНМ ККТ
                     Text { text: "РНМ ККТ:"; font.pixelSize: 12; color: "#666" }
                     Text {
-                        text: {
-                            var info = appStorage ? appStorage.get_current_kkt_info() : {}
-                            return info.kktRnm || "—"
-                        }
+                        id: kktRnmText
+                        text: "—"
                         font.pixelSize: 12
                         font.family: "Courier"
                         color: "#333"
+                        Layout.fillWidth: true
+                    }
+
+                    // Производитель
+                    Text { text: "Производитель:"; font.pixelSize: 12; color: "#666" }
+                    Text {
+                        id: manufacturerText
+                        text: "—"
+                        font.pixelSize: 12
+                        color: "#333"
+                        Layout.fillWidth: true
+                    }
+
+                    // Разработчик
+                    Text { text: "Разработчик:"; font.pixelSize: 12; color: "#666" }
+                    Text {
+                        id: developerText
+                        text: "—"
+                        font.pixelSize: 12
+                        color: "#333"
+                        Layout.fillWidth: true
+                    }
+
+                    // Состояние смены
+                    Text { text: "Состояние смены:"; font.pixelSize: 12; color: "#666" }
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 26
+                        radius: 4
+                        color: {
+                            var state = shiftStateText.text
+                            if (state === "OPENED" || state === "Открыта") return "#4caf50"
+                            if (state === "CLOSED" || state === "Закрыта") return "#9e9e9e"
+                            return "#ff9800"
+                        }
+
+                        Text {
+                            id: shiftStateText
+                            anchors.centerIn: parent
+                            text: "—"
+                            font.pixelSize: 12
+                            color: "white"
+                            font.bold: true
+                        }
                     }
                 }
             }
         }
 
-        // Кнопка регистрации - теперь напрямую используем appStorage
+        // Кнопка регистрации
         Button {
             id: registerButton
             Layout.alignment: Qt.AlignHCenter
@@ -786,35 +834,17 @@ Rectangle {
             Layout.preferredHeight: 40
             text: "📝 Зарегистрировать кассу"
 
-            // Условия для отображения кнопки
             visible: {
-                if (!appStorage || !appStorage.currentKkt) {
-                    console.log("Кнопка скрыта: нет выбранной кассы")
-                    return false
-                }
-
-                // Проверяем, зарегистрирована ли касса
+                if (!appStorage || !appStorage.currentKkt) return false
                 var isRegistered = appStorage.check_kkt_registration(appStorage.currentKkt)
-                console.log("Статус регистрации для", appStorage.currentKkt, ":", isRegistered)
-
-                // Кнопка видна только если касса НЕ зарегистрирована
+                console.log("Кнопка видимость:", !isRegistered, "isRegistered=", isRegistered)
                 return !isRegistered
             }
 
             enabled: {
-                if (!appStorage || appStorage.isLoading) {
-                    return false
-                }
-
-                // Проверяем наличие необходимых данных для регистрации
+                if (!appStorage || appStorage.isLoading) return false
                 var info = appStorage.get_current_kkt_info()
-                var hasRequiredData = info && info.fnSerial && info.kktInn
-
-                console.log("Кнопка enabled:", hasRequiredData,
-                          "fnSerial:", info ? info.fnSerial : "нет",
-                          "kktInn:", info ? info.kktInn : "нет")
-
-                return hasRequiredData
+                return info && info.fnSerial && info.kktInn
             }
 
             background: Rectangle {
@@ -1099,59 +1129,101 @@ Rectangle {
     }
 
     // ==================== СВЯЗИ С КОНТРОЛЛЕРАМИ ====================
-    Connections {
-        target: kktController
+Connections {
+    target: appStorage
 
-        function onKktListChanged() {
-            console.log("ККТ: список обновлен, касс:", kktController.kktList.length)
-            if (kktController.kktList.length > 0 && kktController.selectedKkt === "") {
-                kktController.selectKkt(kktController.kktList[0])
+    function onKktListChanged(list) {
+        console.log("appStorage: список ККТ обновлен, касс:", list ? list.length : 0)
+        if (list && list.length > 0 && !appStorage.currentKkt) {
+            appStorage.set_current_kkt(list[0])
+        }
+    }
+
+    function onCurrentKktChanged(kktId) {
+        console.log("appStorage: выбрана касса:", kktId)
+        if (kktId) {
+            var index = kktCombo.find(kktId)
+            if (index !== -1) {
+                kktCombo.currentIndex = index
             }
         }
+    }
 
-        function onSelectedKktChanged() {
-            console.log("ККТ: выбрана касса:", kktController.selectedKkt)
-            var selected = kktController.selectedKkt
-            if (selected) {
-                var index = kktCombo.find(selected)
-                if (index !== -1) {
-                    kktCombo.currentIndex = index
-                }
+    function onKktInfoUpdated(info) {
+        console.log("appStorage: информация о кассе обновлена:", JSON.stringify(info))
+        if (info) {
+            // Обновляем все текстовые поля
+            kktSerialText.text = info.kktSerial || "—"
+            modelText.text = info.modelName || "—"
+            fnSerialText.text = info.fnSerial || "—"
+            dkktVersionText.text = info.dkktVersion || "—"
+            innText.text = info.kktInn || "—"
+            kktRnmText.text = info.kktRnm || "—"
+            manufacturerText.text = info.manufacturer || "—"
+            developerText.text = info.developer || "—"
+
+            // Обработка состояния смены
+            var shiftState = info.shiftState
+            if (shiftState === "OPENED" || shiftState === "Открыта") {
+                shiftStateText.text = "Открыта"
+            } else if (shiftState === "CLOSED" || shiftState === "Закрыта") {
+                shiftStateText.text = "Закрыта"
+            } else {
+                shiftStateText.text = shiftState || "—"
             }
         }
+    }
 
-        function onKktInfoChanged(info) {
-            console.log("ККТ: информация обновлена:", JSON.stringify(info))
-        }
+    function onRegistrationCompleted(result) {
+        console.log("appStorage: регистрация завершена:", JSON.stringify(result))
+        registrationDialog.success = result.success
+        registrationDialog.message = result.message ||
+            (result.success ? "Касса успешно зарегистрирована" : "Ошибка регистрации")
+        registrationDialog.open()
 
-        function onRegistrationResultChanged(result) {
-            console.log("ККТ: результат регистрации:", JSON.stringify(result))
-            registrationDialog.success = result.success
-            registrationDialog.message = result.message ||
-                (result.success ? "Касса успешно зарегистрирована" : "Ошибка регистрации")
-            registrationDialog.open()
+        if (result.success && result.kkt_serial) {
+            console.log("Принудительное обновление после регистрации для", result.kkt_serial)
+            appStorage.refresh_kkt_info(result.kkt_serial)
+            appStorage.force_check_registration(result.kkt_serial)
         }
     }
 
-    Connections {
-        target: gisMtController
-
-        function onGismtStatusChanged() {
-            console.log("ГИС МТ: статус обновлен")
-        }
-
-        function onLicenseInfoChanged() {
-            console.log("ГИС МТ: информация о лицензии обновлена")
+    function onRegistrationStatusChanged(kktSerial, isRegistered) {
+        console.log("appStorage: статус регистрации изменен", kktSerial, "->", isRegistered)
+        if (kktSerial === appStorage.currentKkt) {
+            registerButton.visible = !isRegistered
         }
     }
 
-    Connections {
-        target: lmController
-
-        function onLmStatusChanged() {
-            console.log("ЛМ ЧЗ: статус обновлен")
-        }
+    function onErrorOccurred(message) {
+        console.error("appStorage: ошибка:", message)
+        errorBanner.showError(message)
     }
+
+    function onLoadingChanged(loading) {
+        console.log("appStorage: загрузка:", loading)
+    }
+}
+
+Connections {
+    target: gisMtController
+
+    function onGismtStatusChanged() {
+        console.log("ГИС МТ: статус обновлен")
+    }
+
+    function onLicenseInfoChanged() {
+        console.log("ГИС МТ: информация о лицензии обновлена")
+    }
+}
+
+Connections {
+    target: lmController
+
+    function onLmStatusChanged() {
+        console.log("ЛМ ЧЗ: статус обновлен")
+    }
+}
 
     Connections {
         target: appStorage

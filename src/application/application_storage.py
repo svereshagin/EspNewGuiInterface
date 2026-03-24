@@ -60,11 +60,10 @@ class RegistrationWorker(QThread):
                 'kkt_serial': self.kkt_serial
             })
         else:
-            logger.info()
             logger.info("Регистрация прошла с ошибкой")
             self.finished.emit({
                 'success': False,
-                'message': f"Ошибка регистрации: {error}",
+                'message': f"Ошибка регистрации: {register_result.error_msg}",
                 'kkt_serial': self.kkt_serial
             })
 
@@ -226,6 +225,18 @@ class ApplicationStorage(QObject):
         """Вызывается из QML когда UI готов"""
         logger.info("📢 UI сообщил о готовности")
         self.uiReady.emit()
+
+    @Slot(str)
+    def force_check_registration(self, kkt_serial: str):
+        """Принудительно проверяет статус регистрации, игнорируя кэш"""
+        logger.info(f"🔍 Принудительная проверка регистрации для {kkt_serial}")
+        # Очищаем кэш для этой кассы
+        self._registration_cache.pop(kkt_serial, None)
+        self._pending_registration_checks.discard(kkt_serial)
+        # Запускаем проверку
+        self._update_registration_status(kkt_serial)
+
+
 
     @Slot()
     def _on_ui_ready(self):
@@ -866,20 +877,25 @@ class ApplicationStorage(QObject):
         self._registration_worker.progress.connect(self.registrationProgress.emit)
         self._registration_worker.start()
 
-
-
-
     def _on_registration_finished(self, result: dict):
         self._set_loading(False)
         self.registrationCompleted.emit(result)
 
-        if result.get('kkt_serial'):
-            # Инвалидируем кэш принудительно — пользователь только что что-то сделал
-            self._registration_cache.pop(result['kkt_serial'], None)
-            self._pending_registration_checks.discard(result['kkt_serial'])
-            # Теперь следующий вызов гарантированно пойдёт на сервер
-            self._update_registration_status(result['kkt_serial'])
+        if result.get('success') and result.get('kkt_serial'):
+            kkt_serial = result['kkt_serial']
+            logger.info(f"✅ Регистрация успешна, обновляем статус для {kkt_serial}")
 
+            # Очищаем кэш
+            self._registration_cache.pop(kkt_serial, None)
+            self._pending_registration_checks.discard(kkt_serial)
+
+            self.registrationStatusChanged.emit(kkt_serial, True)
+
+            # Вариант 2: Используем QTimer для повторной проверки
+            QTimer.singleShot(500, lambda: self._update_registration_status(kkt_serial))
+        elif result.get('kkt_serial'):
+            # Если регистрация не удалась, тоже обновляем статус
+            self._update_registration_status(result['kkt_serial'])
     # ==================== Вспомогательные методы ====================
 
     def _set_loading(self, loading: bool):
