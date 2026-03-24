@@ -185,14 +185,17 @@ class ControlmoduleNetwork(ApiClient):
                 print(f"✅ Статус систем получен")
 
                 status_dto = parse_status_response(data)
-
+                #TODO -> logger + выводить по-другому инфу
+                print(f"   ESP: {status_dto.esp.code}, {status_dto.esp.error}")
                 print(f"   ГИС МТ: код {status_dto.gismt.code} - {status_dto.gismt_status}")
                 print(f"   ЛМ: код {status_dto.lm.code}")
                 print(f"   Все системы OK: {status_dto.all_systems_ok}")
 
                 return status_dto
-            if response.status_code == 204:
+            elif response.status_code == 204:
                 return None
+            else:
+                return "Something went wrong: сделать чуть по-другому через DTO"
 
         except Exception as e:
             print(f"❌ Ошибка в get_systems_status: {e}")

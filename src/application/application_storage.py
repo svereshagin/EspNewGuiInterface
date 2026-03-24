@@ -597,7 +597,8 @@ class ApplicationStorage(QObject):
             if result:
                 self._process_status_result(result)
             elif result is None:
-                logger.error(f"❌ 204 ошибка, не найдено ")
+                self.registrationStatusChanged.emit(self._current_kkt, False)
+                self._registration_cache[self._current_kkt] = (time.time(), False)
             else:
                 logger.error(f"❌ Не удалось получить статус для {self._current_kkt}")
                 self.errorOccurred.emit("Не удалось получить статус системы")
