@@ -322,7 +322,7 @@ dist-linux: resources
 		--hidden-import PySide6.QtQml \
 		--hidden-import PySide6.QtCore \
 		--hidden-import PySide6.QtGui \
-		src/main.py
+		src/main.pymake 
 	@echo "✅ Linux сборка готова: dist/$(NAME)"
 ```
 

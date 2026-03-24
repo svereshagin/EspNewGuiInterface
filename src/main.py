@@ -1,5 +1,7 @@
 import sys
 import os
+
+
 from PySide6.QtWidgets import QApplication
 import logging
 
@@ -22,7 +24,10 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    use_compiled = check_compile_mode()
+    use_compiled = getattr(sys, 'frozen', False)
+    if use_compiled:
+        import ui.resources_rc
+
     use_test_data = False
 
     __WINDOW_SIZE = (900, 700)
@@ -35,14 +40,24 @@ def main():
     logger.info(f"📊 Режим тестовых данных: {use_test_data}")
 
     # Пути для разработки и для скомпилированной версии
-    __APP_ICON_PATH = resource_path(os.path.join("ui", "assets", "image_89.png"))
-    __FONTS_PATH = resource_path(os.path.join("ui", "fonts"))
-    __QML_PATH = resource_path(os.path.join("ui", "MainView.qml"))
 
-    # Проверяем существование файлов
-    logger.info(f"📁 Проверка QML файла: {__QML_PATH} существует? {os.path.exists(__QML_PATH)}")
-    logger.info(f"📁 Проверка папки со шрифтами: {__FONTS_PATH} существует? {os.path.exists(__FONTS_PATH)}")
-    logger.info(f"📁 Проверка иконки: {__APP_ICON_PATH} существует? {os.path.exists(__APP_ICON_PATH)}")
+    if use_compiled:
+        __QML_PATH = "qrc:/MainView.qml"
+        __APP_ICON_PATH = "qrc:/assets/image_89.png"
+        __FONTS_PATH = None  # шрифты тоже должны быть в qrc или None
+    else:
+        __APP_ICON_PATH = resource_path(os.path.join("ui", "assets", "image_89.png"))
+        __FONTS_PATH = resource_path(os.path.join("ui", "fonts"))
+        __QML_PATH = resource_path(os.path.join("ui", "MainView.qml"))
+
+    if use_compiled:
+        logger.info(f"📦 QML: {__QML_PATH}")
+        logger.info(f"📦 Иконка: {__APP_ICON_PATH}")
+        logger.info(f"📦 Шрифты: {__FONTS_PATH}")
+    else:
+        logger.info(f"📁 QML существует? {os.path.exists(__QML_PATH)}")
+        logger.info(f"📁 Шрифты существует? {os.path.exists(__FONTS_PATH)}")
+        logger.info(f"📁 Иконка существует? {os.path.exists(__APP_ICON_PATH)}")
 
     app = QApplication(sys.argv)
 

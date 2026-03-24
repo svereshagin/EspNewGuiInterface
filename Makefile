@@ -1,95 +1,153 @@
-# Makefile для Linux
+# Makefile для проекта ТС-ПИоТ
 
 # Основные переменные
-PYTHON := uv run python
+PYTHON := uv run python -m
+PYRCC := uv run pyside6-rcc
 PYINSTALLER := uv run pyinstaller
 
 # Пути
 SRC_DIR := src
-UI_DIR := $(SRC_DIR)/ui
-DIST_NAME := ТС-ПИоТ
+DIST_NAME := "ТС-ПИоТ"
 
-.PHONY: all build clean run dev
+# Основные цели
+.PHONY: all dev compiled compile-resources clean check-deps help \
+        build-linux build-linux-new \
+        build-windows build-windows-debug \
+        run-windows run-windows-debug
 
-# Запуск в режиме разработки
+all: compile-resources dev
+
+# ==================== РЕЖИМЫ ЗАПУСКА ====================
+
+# Запуск в режиме разработки (без компиляции ресурсов)
 dev:
-	@echo "🔧 Запуск в dev-режиме"
-	cd $(SRC_DIR) && $(PYTHON) main.py
+	@echo "Запуск в dev-режиме (без скомпилированных ресурсов)"
+	$(PYTHON) $(SRC_DIR).main
 
-# Сборка для Linux
-build:
-	@echo "📦 Сборка приложения для Linux..."
+# Запуск с скомпилированными ресурсами
+compiled: compile-resources
+	@echo "🔧 Запуск в compiled-режиме (с ресурсами из qrc)"
+	$(PYTHON) $(SRC_DIR).main --compiled
 
-	# Создаем spec файл для лучшего контроля
-	$(PYINSTALLER) --onefile \
+# ==================== РЕСУРСЫ ====================
+
+# Компиляция ресурсов Qt (pyside6-rcc)
+compile-resources:
+	@echo "🔨 Компилируем ресурсы Qt..."
+	uv run pyside6-rcc src/ui/resources.qrc -o src/ui/resources_rc.py
+	@echo "✅ Ресурсы скомпилированы → src/ui/resources_rc.py"
+
+# ==================== СБОРКА ====================
+
+# Старый билд на Linux (без resources_rc, файлы с диска)
+build-linux:
+	@echo "📦 Сборка для Linux (старый способ, файлы с диска)..."
+	uv run pyinstaller --onefile \
 		--name $(DIST_NAME) \
-		--add-data "$(SRC_DIR)/infrastructure:infrastructure" \
-		--add-data "$(SRC_DIR)/ui:ui" \
-		--add-data "$(SRC_DIR)/main.py:." \
+		--add-data "src:src" \
 		--hidden-import PySide6.QtQml \
 		--hidden-import PySide6.QtCore \
 		--hidden-import PySide6.QtGui \
 		--hidden-import PySide6.QtQuick \
 		--hidden-import PySide6.QtQuickWidgets \
 		--collect-data PySide6 \
-		--paths $(SRC_DIR) \
-		--workpath build \
-		--distpath dist \
-		--specpath . \
-		$(SRC_DIR)/main.py
+		--paths . \
+		src/main.py
+	@echo "✅ Готово: dist/ТС-ПИоТ"
 
-	@echo "✅ Сборка завершена!"
-	@echo "📁 Исполняемый файл: dist/$(DIST_NAME)"
-	@ls -la dist/
-
-# Альтернативная сборка с явным указанием всех модулей
-build-verbose:
-	@echo "📦 Сборка с подробным выводом..."
-	$(PYINSTALLER) --onefile \
+# Новый билд на Linux (с resources_rc, всё зашито)
+build-linux-new: compile-resources
+	@echo "📦 Сборка для Linux (с resources_rc)..."
+	uv run pyinstaller --onefile \
 		--name $(DIST_NAME) \
-		--add-data "$(SRC_DIR):." \
-		--hidden-import PySide6 \
-		--hidden-import infrastructure.utils.common \
-		--hidden-import infrastructure.utils.qml_loader \
-		--collect-all PySide6 \
-		--log-level DEBUG \
-		$(SRC_DIR)/main.py 2>&1 | tee build.log
-	@echo "✅ Сборка завершена!"
+		--hidden-import ui.resources_rc \
+		--hidden-import PySide6.QtQml \
+		--hidden-import PySide6.QtCore \
+		--hidden-import PySide6.QtGui \
+		--hidden-import PySide6.QtQuick \
+		--hidden-import PySide6.QtQuickWidgets \
+		--collect-data PySide6 \
+		--paths . \
+		src/main.py
+	@echo "✅ Готово: dist/ТС-ПИоТ"
 
-# Очистка
+# Билд на Windows (с resources_rc, без консоли)
+build-windows: compile-resources
+	@echo "📦 Сборка для Windows..."
+	pyinstaller --onefile --windowed \
+		--name $(DIST_NAME) \
+		--hidden-import ui.resources_rc \
+		--hidden-import PySide6.QtQml \
+		--hidden-import PySide6.QtCore \
+		--hidden-import PySide6.QtGui \
+		--hidden-import PySide6.QtQuick \
+		--hidden-import PySide6.QtQuickWidgets \
+		--collect-data PySide6 \
+		--paths . \
+		src/main.py
+	@echo "✅ Готово: dist/ТС-ПИоТ.exe"
+
+# Билд на Windows с консолью (для отладки)
+build-windows-debug: compile-resources
+	@echo "📦 Сборка для Windows (debug, с консолью)..."
+	pyinstaller --onefile \
+		--name $(DIST_NAME)-debug \
+		--hidden-import ui.resources_rc \
+		--hidden-import PySide6.QtQml \
+		--hidden-import PySide6.QtCore \
+		--hidden-import PySide6.QtGui \
+		--hidden-import PySide6.QtQuick \
+		--hidden-import PySide6.QtQuickWidgets \
+		--collect-data PySide6 \
+		--paths . \
+		src/main.py
+	@echo "✅ Готово: dist/ТС-ПИоТ-debug.exe"
+
+# ==================== ЗАПУСК СОБРАННОГО ====================
+
+run-windows:
+	@echo "🚀 Запуск..."
+	.\dist\ТС-ПИоТ.exe
+
+run-windows-debug:
+	@echo "🚀 Запуск debug..."
+	.\dist\ТС-ПИоТ-debug.exe
+
+# ==================== УТИЛИТЫ ====================
+
+# Очистка сгенерированных файлов
 clean:
 	@echo "🧹 Очистка..."
-	rm -rf build dist *.spec
-	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	rm -rf __pycache__ */__pycache__ build/ dist/ *.spec debug.log
 	@echo "✅ Очистка завершена"
 
-# Запуск собранного приложения с отладкой
-run:
-	@echo "🚀 Запуск собранного приложения..."
-	@if [ -f dist/$(DIST_NAME) ]; then \
-		cd dist && ./$(DIST_NAME) 2>&1; \
-	else \
-		echo "❌ Файл не найден. Сначала выполните сборку: make build"; \
-	fi
+# Проверка зависимостей
+check-deps:
+	@echo "🔍 Проверка зависимостей..."
+	uv pip list | grep PyInstaller || echo "⚠️  PyInstaller не установлен!"
+	uv pip list | grep PySide6 || echo "⚠️  PySide6 не установлен!"
 
-# Запуск с отладкой
-run-debug:
-	@echo "🐛 Запуск с отладкой..."
-	@if [ -f dist/$(DIST_NAME) ]; then \
-		cd dist && strace -e openat ./$(DIST_NAME) 2>&1 | grep -E "(openat|ENOENT)"; \
-	else \
-		echo "❌ Файл не найден. Сначала выполните сборку: make build"; \
-	fi
-
-# Полная пересборка
-rebuild: clean build
-
+# Помощь
 help:
 	@echo "Доступные команды:"
-	@echo "  make dev          - запуск в режиме разработки"
-	@echo "  make build        - сборка приложения"
-	@echo "  make build-verbose - сборка с подробным выводом"
-	@echo "  make run          - запуск собранного приложения"
-	@echo "  make run-debug    - запуск с трассировкой открытия файлов"
-	@echo "  make clean        - очистка"
-	@echo "  make rebuild      - полная пересборка"
+	@echo ""
+	@echo "=== РЕЖИМЫ ЗАПУСКА ==="
+	@echo "  make dev                → запуск в dev-режиме (без qrc, файлы с диска)"
+	@echo "  make compiled           → запуск с скомпилированными ресурсами (qrc)"
+	@echo ""
+	@echo "=== РЕСУРСЫ ==="
+	@echo "  make compile-resources  → скомпилировать resources.qrc → resources_rc.py"
+	@echo "  make clean              → удалить build/, dist/, *.spec и кэши"
+	@echo ""
+	@echo "=== СБОРКА ==="
+	@echo "  make build-linux        → Linux, старый способ (файлы src/ рядом с бинарём)"
+	@echo "  make build-linux-new    → Linux, новый способ (ресурсы зашиты в бинарь)"
+	@echo "  make build-windows      → Windows .exe без консоли (продакшн)"
+	@echo "  make build-windows-debug → Windows .exe с консолью (для отладки)"
+	@echo ""
+	@echo "=== ЗАПУСК СОБРАННОГО (Windows) ==="
+	@echo "  make run-windows        → запустить dist/ТС-ПИоТ.exe"
+	@echo "  make run-windows-debug  → запустить dist/ТС-ПИоТ-debug.exe"
+	@echo ""
+	@echo "=== УТИЛИТЫ ==="
+	@echo "  make check-deps         → проверить наличие PyInstaller и PySide6"

@@ -4,10 +4,9 @@ from PySide6.QtGui import QFontDatabase, QIcon
 from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QMainWindow
 import logging
-
-from application.application_storage import ApplicationStorage
+from src.application.application_storage import ApplicationStorage
 from .controllers import LMController, GisMtController, KKTController
-from infrastructure.utils.common import resource_path
+from src.infrastructure.utils.common import resource_path
 
 logger = logging.getLogger(__name__)
 
@@ -17,11 +16,12 @@ class MainQmlLoader(QMainWindow):
 
     def __init__(self,
                  window_size: tuple,
-                 app_icon_path: str,
                  header_name: str,
-                 fonts_path: str,
                  qml_file: str,
-                 use_test_data: bool = False
+                 app_icon_path: str = None,
+                 fonts_path: str = None,
+                 use_test_data: bool = False,
+                 mode: bool = False, #разработка vs компиляция
                  ):
         super().__init__()
 
@@ -40,13 +40,15 @@ class MainQmlLoader(QMainWindow):
         self.qml_file = qml_file
 
         # Загружаем шрифты
-        self.__load_fonts(fonts_path)
+        if fonts_path:
+            self.__load_fonts(fonts_path)
+        if app_icon_path:
+            self.__set_app_icon()
 
         # Устанавливаем параметры окна
         self.setWindowTitle(header_name)
         self.setMinimumSize(window_size[0], window_size[1])
         self.resize(window_size[0], window_size[1])
-        self.__set_app_icon()
 
         # Создаем центральный виджет
         central_widget = QWidget()
@@ -67,13 +69,16 @@ class MainQmlLoader(QMainWindow):
         logger.info("✅ Storage и контроллеры зарегистрированы в QML контексте")
 
         # Загружаем QML
-        if os.path.exists(qml_file):
+        if qml_file.startswith("qrc:"):
+            qml_url = QUrl(qml_file)
+            logger.info(f"📦 Загрузка QML из ресурсов: {qml_url.toString()}")
+            self.quick_widget.setSource(qml_url)
+        elif os.path.exists(qml_file):
             qml_url = QUrl.fromLocalFile(qml_file)
-            logger.info(f"📁 Загрузка QML из: {qml_url.toString()}")
+            logger.info(f"📁 Загрузка QML из файла: {qml_url.toString()}")
             self.quick_widget.setSource(qml_url)
         else:
             logger.error(f"❌ QML файл не найден: {qml_file}")
-
         # Проверка ошибок
         if self.quick_widget.status() == QQuickWidget.Status.Error:
             logger.error("❌ Ошибка загрузки QML:")
@@ -86,11 +91,15 @@ class MainQmlLoader(QMainWindow):
 
 
     def __set_app_icon(self):
-        if os.path.exists(self.app_icon_path):
+        if self.app_icon_path.startswith("qrc:"):
+            self.setWindowIcon(QIcon(self.app_icon_path))
+            logger.info(f"✅ Иконка загружена из ресурсов: {self.app_icon_path}")
+        elif os.path.exists(self.app_icon_path):
             self.setWindowIcon(QIcon(self.app_icon_path))
             logger.info(f"✅ Иконка загружена: {self.app_icon_path}")
         else:
             logger.warning(f"❌ Иконка не найдена: {self.app_icon_path}")
+
 
     def __load_fonts(self, fonts_dir):
         if not os.path.exists(fonts_dir):
