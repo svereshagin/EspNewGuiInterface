@@ -229,7 +229,10 @@ class TspiotSetup:
                     self._result.error_message = error_text
                     self._result.error_code = error_code
                     return self._result
+            if response.status_code == 500:
+                #На даный момент считаем, что это ошибка означает, что уже есть инстанс esm
 
+                pass
             self._result.success = False
             self._result.error_message = response_data.get('text',
                                                            f"Ошибка {response.status_code}") if response_data else f"Ошибка {response.status_code}"
