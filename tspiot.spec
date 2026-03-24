@@ -3,18 +3,19 @@
 import sys
 import os
 
-# Добавляем путь к src
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+# Исправляем: используем __file__ напрямую (она определена в spec файле)
+# Но лучше вообще не использовать, так как это может вызвать проблемы
+# Вместо этого просто указываем пути относительно текущей директории
 
 block_cipher = None
 
 a = Analysis(
     ['src/main.py'],
-    pathex=['src'],  # Важно: добавляем src в путь поиска
+    pathex=['src'],  # Добавляем src в путь поиска
     binaries=[],
     datas=[
-        ('src/infrastructure', 'infrastructure'),  # Копируем infrastructure
-        ('src/ui', 'ui'),                         # Копируем ui
+        ('src/infrastructure', 'infrastructure'),
+        ('src/ui', 'ui'),
     ],
     hiddenimports=[
         'PySide6.QtQml',
@@ -47,7 +48,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=True,  # Ставим True для отладки, потом можно сменить на False
+    console=True,  # True для отладки, потом можно сменить на False
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
