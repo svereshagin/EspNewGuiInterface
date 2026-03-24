@@ -366,6 +366,7 @@ class ApplicationStorage(QObject):
     def _on_kkt_list_fetched(self, cash_info):
         """Обрабатывает результат получения списка ККТ (вызывается в главном потоке)"""
         try:
+            self._registration_cache.clear()
             if cash_info and cash_info.kkt:
                 self._kkt_list = [kkt.kktSerial for kkt in cash_info.kkt]
                 logger.info(f"📋 Найдено ККТ: {len(self._kkt_list)}")
