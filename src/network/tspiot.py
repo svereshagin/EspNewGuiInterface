@@ -35,6 +35,8 @@ class RequestRegistrationTSPIOT_DTO:
 @dataclass
 class ResponseRegistrationTSPIOT_DTO:
     tspiotId: str
+    result: bool = False
+    error_msg: Optional[str] = None
 
 
 @dataclass
@@ -51,6 +53,11 @@ class TspiotResult:
     tspiot_id: Optional[str] = None
     status: Optional[str] = None
     error_message: Optional[str] = None
+
+
+
+
+
 
 
 class TspiotSetup:
@@ -118,30 +125,10 @@ class TspiotSetup:
             )
             logger.debug(f"PUT {self.ENDPOINT} → статус {response.status_code}")
 
-            data = response.json()
-
-            if response.status_code == 200:
+            if response.status_code == 201:
                 result_data = response.json()
-                return ResponseRegistrationTSPIOT_DTO(tspiotId=result_data.get("tspiotId"))
-            if response.status_code == 400 and data.get("code") == 1010: #всё ОК, иногда тспиот залагивает и лучше отдельно чекнуть этот вариант позже
-                return {
-                    'success': True,
-                }
+                return ResponseRegistrationTSPIOT_DTO(result=True, tspiotId=result_data.get("tspiotId"))
 
-            elif response.status_code == 403:
-                # Ошибка от оркестратора = несколько ИНН
-                error_data = response.json()
-                logger.warning(f"Ошибка регистрации: {error_data}")
-                return {
-                    'success': False,
-                    'error_message': error_data.get('error', {}).get('text', 'Неизвестная ошибка')
-                }
-            else:
-                logger.error(f"Ошибка регистрации: статус {response.status_code}, тело: {response.text}")
-                return {
-                    'success': False,
-                    'error_message': f"HTTP {response.status_code}: {response.text}"
-                }
 
         except httpx.TimeoutException:
             logger.error(TspiotResponseMessages.TIMEOUT_ERROR.value)
@@ -165,110 +152,55 @@ class TspiotSetup:
     def get_result(self) -> TspiotResult:
         return self._result
 
+
+
     def create_esm_service(self, data: RequestCreateInstanceTSPIOT_DTO) -> TspiotResult:
-        """
-        Выполняет POST-запрос и проверяет результат запуска сервиса
-        """
-        self._result = TspiotResult()  # сброс результата
-
-        if not data.kkt_serial:
-            self._result.error_message = "Передан пустой kkt_serial"
-            logger.error(self._result.error_message)
-            return self._result
-
+        """1.2.6. Запрос на добавление сервиса ЕСМ /api/v1/tspiot"""
+        self._result = TspiotResult()
         payload = {"id": data.kkt_serial}
 
-        # оставил для обратной совместимости, в протоколе две версии
-        if data.softPort:
-            payload["softPort"] = data.softPort
-        if data.port:
-            payload["port"] = data.port
-
-        client = self._get_client()
-
         try:
-            response = client.post(
-                self.ENDPOINT,
-                json=payload  # Используем json, а не data
-            )
+            response = self._get_client().post(self.ENDPOINT, json=payload)
             logger.debug(f"POST {self.ENDPOINT} → статус {response.status_code}")
+
+            response_data = response.json() if response.text else None
+
+            if response.status_code == 201 and response_data and response_data.get('id'):
+                self._result.success = True
+                self._result.tspiot_id = response_data['id']
+                self._result.status = "Создан"
+                return self._result
+
+            if response.status_code == 400 and response_data:
+                error = response_data.get('error', {})
+                error_code = error.get('code')
+                error_text = error.get('text', '')
+
+                if error_code == 1010 or "уже существует" in error_text:
+                    self._result.success = False
+                    self._result.tspiot_id = data.kkt_serial
+                    self._result.status = "Уже существует"
+                    self._result.error_message = error_text
+                    self._result.error_code = error_code
+                    return self._result
+
+            self._result.success = False
+            self._result.error_message = response_data.get('text',
+                                                           f"Ошибка {response.status_code}") if response_data else f"Ошибка {response.status_code}"
+            return self._result
 
         except httpx.TimeoutException:
             self._result.error_message = TspiotResponseMessages.TIMEOUT_ERROR.value
-            logger.error(self._result.error_message)
-            return self._result
-
         except httpx.ConnectError:
             self._result.error_message = TspiotResponseMessages.CONNECTION_ERROR.value
-            logger.error(self._result.error_message)
-            return self._result
-
-        except httpx.RequestError as e:
-            self._result.error_message = (
-                    TspiotResponseMessages.REQUEST_ERROR_PREFIX.value + str(e)
-            )
-            logger.error(self._result.error_message)
-            return self._result
-
         except Exception as e:
-            self._result.error_message = (
-                    TspiotResponseMessages.CRITICAL_ERROR_PREFIX.value + str(e)
-            )
-            logger.exception(self._result.error_message)
-            return self._result
+            self._result.error_message = f"{TspiotResponseMessages.CRITICAL_ERROR_PREFIX.value}{e}"
 
-        # Обработка ответа
-        if response.status_code != 201:
-            msg = f"{TspiotResponseMessages.NON_201_RESPONSE.value} {response.status_code}"
-
-            try:
-                error_data = response.json()
-                detail = error_data.get("detail", "")
-                if detail:
-                    msg += f" → {detail}"
-                elif response.text:
-                    msg += f" → {response.text[:180]}..."
-            except Exception:
-                if response.text:
-                    msg += f" → {response.text[:180]}..."
-
-            self._result.error_message = msg
-            logger.error(self._result.error_message)
-            return self._result
-
-        # Парсинг JSON
-        try:
-            data = response.json()
-        except Exception as e:
-            self._result.error_message = (
-                f"{TspiotResponseMessages.JSON_PARSE_ERROR.value} — {e}"
-            )
-            logger.error(self._result.error_message)
-            return self._result
-
-        # Проверка обязательных полей
-        if "id" not in data or "serviceState" not in data:
-            self._result.error_message = TspiotResponseMessages.MISSING_FIELDS.value
-            logger.error(self._result.error_message + f" → получено: {data}")
-            return self._result
-
-        self._result.tspiot_id = str(data["id"])
-        self._result.status = str(data["serviceState"])
-
-        if self._result.status == "Работает":
-            self._result.success = True
-            self._result.error_message = None
-            logger.info(
-                f"{TspiotResponseMessages.SUCCESS_PREFIX.value}{self._result.tspiot_id}"
-            )
-        else:
-            self._result.error_message = (
-                f"{TspiotResponseMessages.UNEXPECTED_STATUS_PREFIX.value} "
-                f"'{self._result.status}' (ожидалось 'Работает')"
-            )
-            logger.warning(self._result.error_message)
-
+        self._result.success = False
+        logger.error(self._result.error_message)
         return self._result
+
+
 
     def close(self):
         """Закрывает клиент"""

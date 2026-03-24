@@ -191,11 +191,8 @@ class ControlmoduleNetwork(ApiClient):
                 print(f"   Все системы OK: {status_dto.all_systems_ok}")
 
                 return status_dto
-            data = response.json()
-            print(data)
-            # else:
-            #     print(f"❌ Ошибка получения статуса: {response.status_code}")
-            #     return None
+            if response.status_code == 204:
+                return None
 
         except Exception as e:
             print(f"❌ Ошибка в get_systems_status: {e}")

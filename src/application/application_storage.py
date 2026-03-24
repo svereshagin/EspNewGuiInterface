@@ -15,7 +15,8 @@ from src.network.regime_local_module import (
     ResponseGetInfoRegime,
     ResponseGetSettingsRegime
 )
-from src.network.tspiot import TspiotSetup, RequestCreateInstanceTSPIOT_DTO, RequestRegistrationTSPIOT_DTO
+from src.network.tspiot import TspiotSetup, RequestCreateInstanceTSPIOT_DTO, RequestRegistrationTSPIOT_DTO, \
+    TspiotResult, ResponseRegistrationTSPIOT_DTO
 from src.domain.kkt.entity import CashInfo, KktInfo
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,32 @@ class RegistrationWorker(QThread):
     def cancel(self):
         self._is_cancelled = True
 
+
+    def _register_esm_tspiot(self):
+        self.progress.emit("Регистрация TSPIOT...")
+        register_data = RequestRegistrationTSPIOT_DTO(
+            id=self.kkt_serial,
+            kktSerial=self.kkt_serial,
+            fnSerial=self.fn_serial,
+            kktInn=self.kkt_inn
+        )
+        register_result: ResponseRegistrationTSPIOT_DTO = self._tspiot_setup.register_tspiot(register_data)
+        if register_result.result:
+            logger.info("Регистрация прошла успешно")
+            self.finished.emit({
+                'success': True,
+                'message': 'Регистрация успешно завершена',
+                'kkt_serial': self.kkt_serial
+            })
+        else:
+            logger.info()
+            logger.info("Регистрация прошла с ошибкой")
+            self.finished.emit({
+                'success': False,
+                'message': f"Ошибка регистрации: {error}",
+                'kkt_serial': self.kkt_serial
+            })
+
     def run(self):
         try:
             self.progress.emit("Создание ESM сервиса...")
@@ -48,47 +75,29 @@ class RegistrationWorker(QThread):
                 self.finished.emit({'success': False, 'message': 'Отменено пользователем'})
                 return
 
+            logger.info("Начинаем создание инстанса для tspiot")
             create_data = RequestCreateInstanceTSPIOT_DTO(kkt_serial=self.kkt_serial)
-            create_result = self._tspiot_setup.create_esm_service(create_data)
+            create_esm_service_result: TspiotResult = self._tspiot_setup.create_esm_service(create_data)
 
-            if not create_result.success and create_result.error_message == "Служба с таким именем уже существует":
+            if create_esm_service_result.success:
+                logger.info("Создали инстанс ESM, переходим к регистрации")
+                self._register_esm_tspiot()
+
+            if not create_esm_service_result.success and create_esm_service_result.status == "Уже существует":
                 self.progress.emit("ESM уже существует, получаем ID...")
-                # TODO: получить существующий ID
-            elif not create_result.success:
+                logger.info("Получили 1010, инстанс создан но не зареган, пытаемся ещё раз зарегать")
+                self._register_esm_tspiot()
+
+
+            elif not create_esm_service_result.success:
                 self.finished.emit({
                     'success': False,
-                    'message': f"Ошибка создания ESM: {create_result.error_message}"
+                    'message': f"Ошибка создания ESM: {create_esm_service_result.error_message}"
                 })
                 return
 
             self.progress.emit("Регистрация TSPIOT...")
-            if self._is_cancelled:
-                self.finished.emit({'success': False, 'message': 'Отменено пользователем'})
-                return
 
-            register_data = RequestRegistrationTSPIOT_DTO(
-                id=create_result.tspiot_id,
-                kktSerial=self.kkt_serial,
-                fnSerial=self.fn_serial,
-                kktInn=self.kkt_inn
-            )
-            register_result = self._tspiot_setup.register_tspiot(register_data)
-
-            success = register_result.get('success', False) if isinstance(register_result, dict) else False
-
-            if success:
-                self.finished.emit({
-                    'success': True,
-                    'message': 'Регистрация успешно завершена',
-                    'kkt_serial': self.kkt_serial
-                })
-            else:
-                error = register_result.get('error_message', 'Неизвестная ошибка')
-                self.finished.emit({
-                    'success': False,
-                    'message': f"Ошибка регистрации: {error}",
-                    'kkt_serial': self.kkt_serial
-                })
 
         except Exception as e:
             self.finished.emit({
@@ -573,8 +582,11 @@ class ApplicationStorage(QObject):
         try:
             result = self._controlmodule_network.get_systems_status(self._current_kkt)
             logger.info(result)
+
             if result:
                 self._process_status_result(result)
+            elif result is None:
+                logger.error(f"❌ 204 ошибка, не найдено ")
             else:
                 logger.error(f"❌ Не удалось получить статус для {self._current_kkt}")
                 self.errorOccurred.emit("Не удалось получить статус системы")
@@ -880,12 +892,14 @@ class ApplicationStorage(QObject):
 
     @Slot(str, result=bool)
     def check_kkt_registration(self, kkt_serial: str) -> bool:
-        """Только читает кэш — безопасно вызывать из QML/главного потока"""
+        """Проверяет, зарегистрирована ли касса (читает кэш)"""
         cache_entry = self._registration_cache.get(kkt_serial)
         if cache_entry:
-            _, cached_value = cache_entry
-            return cached_value
-        # Кэша нет — запускаем фоновое обновление, пока возвращаем False
+            cache_time, cached_value = cache_entry
+            if time.time() - cache_time < REGISTRATION_CACHE_TTL:
+                return cached_value
+
+        # Если кэша нет, запускаем фоновую проверку
         self._update_registration_status(kkt_serial)
         return False
 

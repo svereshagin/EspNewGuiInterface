@@ -569,274 +569,320 @@ Item {
             }
 
             // ==================== ККТ СЕКЦИЯ ====================
-            Rectangle {
+            // ==================== ККТ СЕКЦИЯ ====================
+Rectangle {
+    Layout.fillWidth: true
+    Layout.preferredHeight: 380
+    color: "white"
+    radius: 8
+    border.color: "#e0e0e0"
+    border.width: 1
+
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 16
+        spacing: 12
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            Text {
+                text: "💰 Управление кассами (ККТ)"
+                font.pixelSize: 18
+                font.bold: true
+                color: "#2196F3"
+            }
+
+            Item { Layout.fillWidth: true }
+
+            Text {
+                text: "Всего: " + (appStorage ? appStorage.kktList.length : 0)
+                color: "#666"
+                font.pixelSize: 12
+                font.bold: true
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 10
+
+            Text {
+                text: "Касса:"
+                font.pixelSize: 14
+                font.bold: true
+                color: "#333"
+            }
+
+            ComboBox {
+                id: kktCombo
                 Layout.fillWidth: true
-                Layout.preferredHeight: 380
-                color: "white"
-                radius: 8
-                border.color: "#e0e0e0"
-                border.width: 1
+                Layout.preferredHeight: 36
 
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 16
-                    spacing: 12
+                model: appStorage ? appStorage.kktList : []
 
-                    RowLayout {
-                        Layout.fillWidth: true
+                displayText: currentIndex === -1 ? "Выберите серийный номер..." : currentText
 
-                        Text {
-                            text: "💰 Управление кассами (ККТ)"
-                            font.pixelSize: 18
-                            font.bold: true
-                            color: "#2196F3"
-                        }
-
-                        Item { Layout.fillWidth: true }
-
-                        Text {
-                            text: "Всего: " + (kktController ? kktController.kktList.length : 0)
-                            color: "#666"
-                            font.pixelSize: 12
-                            font.bold: true
-                        }
+                onActivated: function(index) {
+                    if (appStorage) {
+                        appStorage.set_current_kkt(model[index])
                     }
+                }
 
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 10
+                delegate: ItemDelegate {
+                    width: kktCombo.width
+                    text: modelData
 
-                        Text {
-                            text: "Касса:"
-                            font.pixelSize: 14
-                            font.bold: true
-                            color: "#333"
-                        }
-
-                        ComboBox {
-                            id: kktCombo
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 36
-
-                            model: kktController ? kktController.kktList : []
-
-                            displayText: currentIndex === -1 ? "Выберите серийный номер..." : currentText
-
-                            onActivated: function(index) {
-                                if (kktController) {
-                                    kktController.selectKkt(model[index])
-                                }
-                            }
-
-                            delegate: ItemDelegate {
-                                width: kktCombo.width
-                                text: modelData
-
-                                contentItem: Text {
-                                    text: modelData
-                                    color: "black"
-                                    font.pixelSize: 13
-                                    font.family: "Courier"
-                                    leftPadding: 12
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-                            }
-
-                            background: Rectangle {
-                                color: "white"
-                                border.color: kktCombo.pressed ? "#2196F3" : "#c0c0c0"
-                                border.width: 1
-                                radius: 5
-                            }
-                        }
-
-                        Button {
-                            Layout.preferredWidth: 36
-                            Layout.preferredHeight: 36
-                            text: "↻"
-
-                            onClicked: {
-                                if (kktController) {
-                                    kktController.refreshList()
-                                }
-                            }
-
-                            background: Rectangle {
-                                color: parent.hovered ? "#e0e0e0" : "#f5f5f5"
-                                border.color: "#c0c0c0"
-                                radius: 5
-                            }
-
-                            contentItem: Text {
-                                text: parent.text
-                                font.pixelSize: 18
-                                color: "#333"
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                        }
-                    }
-
-                    BusyIndicator {
-                        Layout.alignment: Qt.AlignHCenter
-                        running: appStorage ? appStorage.isLoading : false
-                        visible: running
-                        implicitWidth: 30
-                        implicitHeight: 30
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 200
-                        color: "#f8f9fa"
-                        radius: 6
-                        border.color: "#e0e0e0"
-                        border.width: 1
-                        visible: kktController && kktController.kktInfo !== null
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 12
-                            spacing: 8
-
-                            Text {
-                                text: "Информация о кассе"
-                                font.pixelSize: 14
-                                font.bold: true
-                                color: "#333"
-                            }
-
-                            GridLayout {
-                                Layout.fillWidth: true
-                                columns: 2
-                                columnSpacing: 20
-                                rowSpacing: 6
-
-                                Text { text: "Серийный номер:"; font.pixelSize: 12; color: "#666" }
-                                Text {
-                                    text: kktController && kktController.kktInfo ?
-                                          kktController.kktInfo.kktSerial : ""
-                                    font.pixelSize: 12
-                                    font.family: "Courier"
-                                    color: "#333"
-                                    Layout.fillWidth: true
-                                }
-
-                                Text { text: "Модель:"; font.pixelSize: 12; color: "#666" }
-                                Text {
-                                    text: kktController && kktController.kktInfo ?
-                                          kktController.kktInfo.modelName : ""
-                                    font.pixelSize: 12
-                                    color: "#333"
-                                }
-
-                                Text { text: "СН ФН:"; font.pixelSize: 12; color: "#666" }
-                                Text {
-                                    text: kktController && kktController.kktInfo ?
-                                          kktController.kktInfo.fnSerial : ""
-                                    font.pixelSize: 12
-                                    font.family: "Courier"
-                                    color: "#333"
-                                }
-
-                                Text { text: "Версия ДККТ:"; font.pixelSize: 12; color: "#666" }
-                                Text {
-                                    text: kktController && kktController.kktInfo ?
-                                          kktController.kktInfo.dkktVersion : ""
-                                    font.pixelSize: 12
-                                    color: "#333"
-                                }
-
-                                Text { text: "ИНН:"; font.pixelSize: 12; color: "#666" }
-                                Text {
-                                    text: kktController && kktController.kktInfo ?
-                                          kktController.kktInfo.kktInn : ""
-                                    font.pixelSize: 12
-                                    font.family: "Courier"
-                                    color: "#333"
-                                }
-
-                                Text { text: "РНМ ККТ:"; font.pixelSize: 12; color: "#666" }
-                                Text {
-                                    text: kktController && kktController.kktInfo ?
-                                          kktController.kktInfo.kktRnm : ""
-                                    font.pixelSize: 12
-                                    font.family: "Courier"
-                                    color: "#333"
-                                }
-                            }
-                        }
-                    }
-
-                    Button {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.preferredWidth: 250
-                        Layout.preferredHeight: 40
-                        text: "📝 Зарегистрировать кассу"
-                        visible: kktController && kktController.canRegister
-                        enabled: kktController && !appStorage.isLoading
-
-                        background: Rectangle {
-                            color: parent.enabled ?
-                                   (parent.pressed ? "#2e7d32" : (parent.hovered ? "#388e3c" : "#4caf50")) :
-                                   "#bdbdbd"
-                            radius: 20
-                        }
-
-                        contentItem: Text {
-                            text: parent.text
-                            color: "white"
-                            font.pixelSize: 14
-                            font.bold: true
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
-
-                        onClicked: {
-                            if (kktController) {
-                                kktController.registerCurrentKkt()
-                            }
-                        }
-                    }
-
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        visible: kktController && !kktController.canRegister &&
-                                 kktController && kktController.selectedKkt !== ""
-                        text: "✅ Касса уже зарегистрирована"
-                        color: "#4caf50"
+                    contentItem: Text {
+                        text: modelData
+                        color: "black"
                         font.pixelSize: 13
-                        font.bold: true
+                        font.family: "Courier"
+                        leftPadding: 12
+                        verticalAlignment: Text.AlignVCenter
                     }
+                }
 
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 80
-                        color: "#f8f9fa"
-                        radius: 6
-                        border.color: "#e0e0e0"
-                        border.width: 1
-                        visible: !kktController || kktController.kktInfo === null
-
-                        ColumnLayout {
-                            anchors.centerIn: parent
-                            spacing: 5
-                            Text {
-                                text: "📋"
-                                font.pixelSize: 24
-                                Layout.alignment: Qt.AlignHCenter
-                            }
-                            Text {
-                                text: "Выберите кассу из списка"
-                                color: "#666"
-                                font.pixelSize: 13
-                                Layout.alignment: Qt.AlignHCenter
-                            }
-                        }
-                    }
+                background: Rectangle {
+                    color: "white"
+                    border.color: kktCombo.pressed ? "#2196F3" : "#c0c0c0"
+                    border.width: 1
+                    radius: 5
                 }
             }
 
+            Button {
+                Layout.preferredWidth: 36
+                Layout.preferredHeight: 36
+                text: "↻"
+
+                onClicked: {
+                    if (appStorage) {
+                        appStorage.refresh_kkt_list()
+                    }
+                }
+
+                background: Rectangle {
+                    color: parent.hovered ? "#e0e0e0" : "#f5f5f5"
+                    border.color: "#c0c0c0"
+                    radius: 5
+                }
+
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 18
+                    color: "#333"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+        }
+
+        BusyIndicator {
+            Layout.alignment: Qt.AlignHCenter
+            running: appStorage ? appStorage.isLoading : false
+            visible: running
+            implicitWidth: 30
+            implicitHeight: 30
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 200
+            color: "#f8f9fa"
+            radius: 6
+            border.color: "#e0e0e0"
+            border.width: 1
+            visible: appStorage && appStorage.currentKkt !== ""
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 8
+
+                Text {
+                    text: "Информация о кассе"
+                    font.pixelSize: 14
+                    font.bold: true
+                    color: "#333"
+                }
+
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: 2
+                    columnSpacing: 20
+                    rowSpacing: 6
+
+                    Text { text: "Серийный номер:"; font.pixelSize: 12; color: "#666" }
+                    Text {
+                        text: appStorage && appStorage.currentKkt ? appStorage.currentKkt : ""
+                        font.pixelSize: 12
+                        font.family: "Courier"
+                        color: "#333"
+                        Layout.fillWidth: true
+                    }
+
+                    Text { text: "Модель:"; font.pixelSize: 12; color: "#666" }
+                    Text {
+                        text: {
+                            var info = appStorage ? appStorage.get_current_kkt_info() : {}
+                            return info.modelName || "—"
+                        }
+                        font.pixelSize: 12
+                        color: "#333"
+                    }
+
+                    Text { text: "СН ФН:"; font.pixelSize: 12; color: "#666" }
+                    Text {
+                        text: {
+                            var info = appStorage ? appStorage.get_current_kkt_info() : {}
+                            return info.fnSerial || "—"
+                        }
+                        font.pixelSize: 12
+                        font.family: "Courier"
+                        color: "#333"
+                    }
+
+                    Text { text: "Версия ДККТ:"; font.pixelSize: 12; color: "#666" }
+                    Text {
+                        text: {
+                            var info = appStorage ? appStorage.get_current_kkt_info() : {}
+                            return info.dkktVersion || "—"
+                        }
+                        font.pixelSize: 12
+                        color: "#333"
+                    }
+
+                    Text { text: "ИНН:"; font.pixelSize: 12; color: "#666" }
+                    Text {
+                        text: {
+                            var info = appStorage ? appStorage.get_current_kkt_info() : {}
+                            return info.kktInn || "—"
+                        }
+                        font.pixelSize: 12
+                        font.family: "Courier"
+                        color: "#333"
+                    }
+
+                    Text { text: "РНМ ККТ:"; font.pixelSize: 12; color: "#666" }
+                    Text {
+                        text: {
+                            var info = appStorage ? appStorage.get_current_kkt_info() : {}
+                            return info.kktRnm || "—"
+                        }
+                        font.pixelSize: 12
+                        font.family: "Courier"
+                        color: "#333"
+                    }
+                }
+            }
+        }
+
+        // Кнопка регистрации - теперь напрямую используем appStorage
+        Button {
+            id: registerButton
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredWidth: 250
+            Layout.preferredHeight: 40
+            text: "📝 Зарегистрировать кассу"
+
+            // Условия для отображения кнопки
+            visible: {
+                if (!appStorage || !appStorage.currentKkt) {
+                    console.log("Кнопка скрыта: нет выбранной кассы")
+                    return false
+                }
+
+                // Проверяем, зарегистрирована ли касса
+                var isRegistered = appStorage.check_kkt_registration(appStorage.currentKkt)
+                console.log("Статус регистрации для", appStorage.currentKkt, ":", isRegistered)
+
+                // Кнопка видна только если касса НЕ зарегистрирована
+                return !isRegistered
+            }
+
+            enabled: {
+                if (!appStorage || appStorage.isLoading) {
+                    return false
+                }
+
+                // Проверяем наличие необходимых данных для регистрации
+                var info = appStorage.get_current_kkt_info()
+                var hasRequiredData = info && info.fnSerial && info.kktInn
+
+                console.log("Кнопка enabled:", hasRequiredData,
+                          "fnSerial:", info ? info.fnSerial : "нет",
+                          "kktInn:", info ? info.kktInn : "нет")
+
+                return hasRequiredData
+            }
+
+            background: Rectangle {
+                color: parent.enabled ?
+                       (parent.pressed ? "#2e7d32" : (parent.hovered ? "#388e3c" : "#4caf50")) :
+                       "#bdbdbd"
+                radius: 20
+            }
+
+            contentItem: Text {
+                text: parent.text
+                color: "white"
+                font.pixelSize: 14
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            onClicked: {
+                console.log("Нажата кнопка регистрации")
+                var info = appStorage.get_current_kkt_info()
+                if (info && info.kktSerial && info.fnSerial && info.kktInn) {
+                    appStorage.register_kkt(info.kktSerial, info.fnSerial, info.kktInn)
+                } else {
+                    console.error("Недостаточно данных для регистрации")
+                    errorBanner.showError("Недостаточно данных для регистрации кассы")
+                }
+            }
+        }
+
+        // Сообщение о том, что касса уже зарегистрирована
+        Text {
+            Layout.alignment: Qt.AlignHCenter
+            visible: appStorage && appStorage.currentKkt !== "" &&
+                     appStorage.check_kkt_registration(appStorage.currentKkt)
+            text: "✅ Касса уже зарегистрирована"
+            color: "#4caf50"
+            font.pixelSize: 13
+            font.bold: true
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 80
+            color: "#f8f9fa"
+            radius: 6
+            border.color: "#e0e0e0"
+            border.width: 1
+            visible: !appStorage || appStorage.currentKkt === ""
+
+            ColumnLayout {
+                anchors.centerIn: parent
+                spacing: 5
+                Text {
+                    text: "📋"
+                    font.pixelSize: 24
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                Text {
+                    text: "Выберите кассу из списка"
+                    color: "#666"
+                    font.pixelSize: 13
+                    Layout.alignment: Qt.AlignHCenter
+                }
+            }
+        }
+    }
+}
             // ==================== ФУТЕР ====================
             Rectangle {
                 Layout.fillWidth: true
