@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file alias="MainView.qml">MainView.qml</file>
+        <file>assets/image_89.png</file>
+        <file>fonts/font.ttf</file>
+ </qresource>
+</RCC>
