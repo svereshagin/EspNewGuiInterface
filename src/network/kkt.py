@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 
 from src.domain.kkt.entity import CashInfo
 from src.core.config import ApiSettings
-from src.domain.common.regime_local_module import KktInfo
 from src.network.base import ApiClient
 
 

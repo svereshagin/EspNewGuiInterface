@@ -1,9 +1,18 @@
 import httpx
 from typing import Optional, List
 from dataclasses import dataclass
+
+from domain.controlmodule.entity import ControlModuleInfo
 from src.core.config import ApiSettings
 from src.network.base import ApiClient
 import threading
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+
+
 
 @dataclass
 class ComponentStatusDTO:
@@ -136,11 +145,6 @@ class Controlmodule_instance_info_DTO:
     regData: RegistrationData
 
 
-@dataclass
-class Controlmodule_info_DTO:
-    app_path: str
-    version: str
-    log_path: str
 
 
 @dataclass
@@ -210,7 +214,7 @@ class ControlmoduleNetwork(ApiClient):
             )
         return self._local.client
 
-    def _get_cm_info(self) -> Optional[Controlmodule_info_DTO]:
+    def get_cm_info(self) -> Optional[ControlModuleInfo]:
         """Получает общую информацию о драйвере"""
         try:
             client = self._get_client()
@@ -219,18 +223,18 @@ class ControlmoduleNetwork(ApiClient):
 
             if response.status_code == 200:
                 data = response.json()
-                dto = Controlmodule_info_DTO(
+                dto = ControlModuleInfo(
                     app_path=data["appPath"],
                     version=data["version"],
                     log_path=data["logPath"]
                 )
-                print(f"✅ Версия драйвера: {dto.version}")
+                logger.info("ControlModule Info: %dto.app_path, %dto.version, %dto.log_path", dto.app_path, dto.version, dto.log_path)
                 return dto
             else:
                 print(f"❌ Ошибка API: статус {response.status_code}")
                 return None
         except Exception as e:
-            print(f"❌ Ошибка в _get_cm_info: {e}")
+            print(f"❌ Ошибка в get_cm_info: {e}")
             return None
 
     def _get_cm_instances(self) -> Optional[Controlmodule_instances_DTO]:
@@ -267,6 +271,13 @@ class ControlmoduleNetwork(ApiClient):
         except Exception as e:
             print(f"❌ Ошибка в _get_cm_instances: {e}")
             return None
+
+
+    def close(self):
+        client = getattr(self._local, 'client', None)
+        if client and not client.is_closed:
+            client.close()
+
 
     def _get_cm_instance_info(self, esm_instance_id: str) -> Optional[Controlmodule_instance_info_DTO]:
         """
@@ -326,40 +337,4 @@ class ControlmoduleNetwork(ApiClient):
             print(f"❌ Ошибка в _get_cm_instance_info: {e}")
             return None
 
-        def close(self):
-            client = getattr(self._local, 'client', None)
-            if client and not client.is_closed:
-                client.close()
 
-# # ВЫЗОВ МЕТОДА ДЛЯ ИНСТАНСА 00106327428745
-# if __name__ == "__main__":
-#     import time
-#
-#     print("=" * 60)
-#     print("🚀 Тестирование ControlmoduleNetwork")
-#     print("=" * 60)
-#
-#     # Создаем экземпляр класса
-#     network = ControlmoduleNetwork()
-#
-#     # ID инстанса для проверки
-#     INSTANCE_ID = "00106327428745"
-#
-#     print(f"\n🔍 Проверка статуса систем для инстанса: {INSTANCE_ID}")
-#     print("-" * 40)
-#
-#     # Получаем статус систем
-#     status = network.get_systems_status(INSTANCE_ID)
-#
-#     if status:
-#         print("\n✅ Результат получения статуса:")
-#         print(f"   ГИС МТ: {status.gismt_status}")
-#         print(f"   Последнее соединение с ГИС МТ: {status.gismt.lastConnection}")
-#         print(f"   Статус ЛМ: код {status.lm.code}")
-#         print(f"   Статус ESP: код {status.esp.code}")
-#         print(f"   Клиентское ПО: {status.clientSoftware.name} v{status.clientSoftware.version}")
-#         print(f"   Все системы работают: {status.all_systems_ok}")
-#     else:
-#         print(f"❌ Не удалось получить статус для инстанса {INSTANCE_ID}")
-#
-#     print("\n" + "=" * 60)

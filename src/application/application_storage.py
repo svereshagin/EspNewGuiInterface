@@ -5,6 +5,8 @@ import time
 
 import logging
 from PySide6.QtCore import Qt
+
+from domain.controlmodule.entity import ControlModuleInfo
 from src.network.controlmodule import ControlmoduleNetwork, SystemsStatusResponseDTO
 from src.network.gismt import GisMtNetwork, GisMtSettingsResponseDTO, GisMtSettingsUpdateDTO
 from src.network.kkt import KKTNetwork
@@ -23,6 +25,10 @@ logger = logging.getLogger(__name__)
 
 
 REGISTRATION_CACHE_TTL = 55
+
+
+
+
 
 
 
@@ -154,6 +160,11 @@ class ApplicationStorage(QObject):
     kktInfoUpdated = Signal(dict)
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self.__current_instances = None
+        self.controlmodule_info: ControlModuleInfo = ControlModuleInfo()
+
+
 
         #старт сигналов после загрузки приложения
         self.uiReady.connect(self._on_ui_ready, Qt.ConnectionType.QueuedConnection)
@@ -920,10 +931,14 @@ class ApplicationStorage(QObject):
         self._update_registration_status(kkt_serial)
         return False
 
+    def get_controlmodule_info(self):
+        self.controlmodule_info = self._controlmodule_network.get_cm_info()
+
+
+
     def close(self):
         """Закрывает все соединения"""
         logger.info("🔒 Закрытие ApplicationStorage")
-        # Исправляем имена атрибутов
         if hasattr(self, '_controlmodule_network'):
             self._controlmodule_network.close()
         if hasattr(self, '_gismt_network'):

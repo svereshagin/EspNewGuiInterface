@@ -14,6 +14,7 @@ class ShiftState(str, Enum):
 @dataclass
 class KktInfo:
     """Информация о конкретной кассе"""
+
     kktSerial: str  # серийный номер кассы
     fnSerial: str  # серийный номер ФН
     kktInn: str  # ИНН на который зарегистрирована касса
@@ -49,6 +50,7 @@ class KktInfo:
 @dataclass
 class CashInfo:
     """Информация о подключенных кассах"""
+    # url -> 'http://127.0.0.1:51077/api/v1/dkktList'
     kkt: List[KktInfo] = field(default_factory=list)  # список подключенных касс
 
     @classmethod
@@ -75,6 +77,22 @@ class CashInfo:
     def __getitem__(self, index: int) -> KktInfo:
         """Доступ по индексу"""
         return self.kkt[index]
+
+    #==============================Business Logic====================================
+    @classmethod
+    def get_all_cash_with_same_inn(cls, inn: str) -> List[KktInfo]:
+        """
+        Возвращает все только те обьекты касс, где один и тот же ИНН
+        """
+        kkt_array: list[KktInfo] = []
+
+        for kkt in cls.kkt:
+            if kkt.kktInn == inn:
+                kkt_array.append(kkt)
+        return kkt_array
+
+
+
 
     def get_serial_numbers(self) -> List[str]:
         """Получить список серийных номеров всех касс"""
