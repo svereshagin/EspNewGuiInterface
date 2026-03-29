@@ -25,6 +25,8 @@ class MainQmlLoader(QMainWindow):
                  ):
         super().__init__()
 
+
+
         # Создаем единое хранилище состояния
         self._storage = ApplicationStorage()
 
@@ -32,6 +34,8 @@ class MainQmlLoader(QMainWindow):
         self._lm_controller = LMController(self._storage)
         self._gismt_controller = GisMtController(self._storage)
         self._kkt_controller = KKTController(self._storage)
+
+
 
         # Сохраняем параметры
         self.app_icon_path = app_icon_path
@@ -86,6 +90,7 @@ class MainQmlLoader(QMainWindow):
                 logger.error(f"   {error.toString()}")
         else:
             logger.info("✅ QML успешно загружен")
+
 
         layout.addWidget(self.quick_widget)
 
