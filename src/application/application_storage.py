@@ -29,9 +29,6 @@ REGISTRATION_CACHE_TTL = 55
 
 
 
-
-
-
 class RegistrationWorker(QThread):
     """Поток для регистрации ККТ"""
     finished = Signal(dict)
