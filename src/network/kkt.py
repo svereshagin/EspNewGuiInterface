@@ -8,6 +8,8 @@ from src.core.config import ApiSettings
 from src.network.base import ApiClient
 
 
+#TODO REFACTOR is needed due to complex and bad structure
+
 class KKTNetwork(ApiClient):
     __DKKT_URL = "/api/v1/dkktList"
     __SETTINGS_LM_URL = "/api/v1/settings/lm"

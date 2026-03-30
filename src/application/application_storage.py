@@ -2,11 +2,9 @@ from PySide6.QtCore import QObject, Signal, Slot, Property, QTimer, Qt, QRunnabl
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 import time
-
 import logging
 from PySide6.QtCore import Qt
-
-from domain.controlmodule.entity import ControlModuleInfo
+from src.controllers.controlmodule import ControlModuleViewModel
 from src.network.controlmodule import ControlmoduleNetwork, SystemsStatusResponseDTO
 from src.network.gismt import GisMtNetwork, GisMtSettingsResponseDTO, GisMtSettingsUpdateDTO
 from src.network.kkt import KKTNetwork
@@ -159,7 +157,7 @@ class ApplicationStorage(QObject):
         super().__init__(parent)
 
         self.__current_instances = None
-        self.controlmodule_info: ControlModuleInfo = ControlModuleInfo()
+        self._control_module_controller = ControlModuleViewModel(self)
 
 
 
@@ -227,6 +225,22 @@ class ApplicationStorage(QObject):
         self._registration_timer = QTimer()
         self._registration_timer.timeout.connect(self._periodic_registration_check)
         # Загружаем список ККТ при старте
+
+
+    @Property(QObject, constant=True)
+    def controlModuleVM(self) -> QObject:
+        return self._control_module_controller
+
+
+    def get_controlmodule_info(self):
+        """Получает информацию о ControlModule"""
+        try:
+            info = self._controlmodule_network.get_cm_info()
+            self._control_module_controller.update(info)
+        except Exception as e:
+            logger.error(f"Ошибка: {e}")
+            self._control_module_controller.update(None)
+
 
     @Slot()
     def notify_ui_ready(self):
