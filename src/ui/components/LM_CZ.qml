@@ -9,11 +9,9 @@ Rectangle {
     property string regime_login: "admin";
     property string regime_password: "admin";
     property string controllerVersion: 0;
-    property int code: 1; //not configured
+    property int code: 1; //configuration status 1 - no, 0 - yes
     property string osInfo: ""; //операционная система, где стоит лм контроллер(там же и regime)
     property string lmStatus: "";
     property string lastSync: "";
     property string lm_cz_error: "";
-
-
 }

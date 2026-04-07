@@ -15,7 +15,9 @@ class ControlModuleViewModel(QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._data = ControlModuleInfo()
+        self._data = ControlModuleInfo(app_path="/app/path", version='version',
+                                       log_path="/logs/path2")
+
 
     @Property(str, notify=dataChanged)
     def appPath(self) -> str:
@@ -43,7 +45,7 @@ class ControlModuleViewModel(QObject):
                 log_path=info.log_path
             )
         else:
-            logging(f'Вернулось пустое: {info}')
+            logger.info(f'Вернулось пустое: {info}')
             self._data = ControlModuleInfo()
 
         self.dataChanged.emit()

@@ -12,5 +12,8 @@ Rectangle {
     property string developer: ""
     property string manufacturer: ""
     property string shiftState: ""
+    //Правило -> если нет кассы и кинули /dkktList -> поставь 1 кассу из списка в selected;
+
+
 
 }

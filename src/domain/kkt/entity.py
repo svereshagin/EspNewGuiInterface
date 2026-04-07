@@ -92,8 +92,6 @@ class CashInfo:
         return kkt_array
 
 
-
-
     def get_serial_numbers(self) -> List[str]:
         """Получить список серийных номеров всех касс"""
         return [kkt.kktSerial for kkt in self.kkt]
