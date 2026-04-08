@@ -36,15 +36,14 @@ class KKTService:
             self.cash_info = self.dkkt_agent.get_dkkt_list()
         return self.cash_info
 
-    def get_unique_cash_inn(self):
+    def get_unique_cash_inn(self) -> List[str]:
         """
         После первого вызова делает "кэш" на уровне сервиса
         также возвращает уникальные INN
         """
         ununique_inns = []
-        self.unique_inns = [inn for inn in self.cash_info.kkt if inn not in ununique_inns]
+        self.unique_inns = [inn.kktInn for inn in self.cash_info.kkt if inn not in ununique_inns]
         return self.unique_inns
-
 
 
     def get_all_cash_within_unique_inn(self, inn: str) -> List[KktInfo]:
