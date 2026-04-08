@@ -9,8 +9,8 @@ def resource_path(relative_path):
     if getattr(sys, 'frozen', False):
         base_path = os.path.dirname(sys.executable)  # папка с .exe
     else:
-        current_file = os.path.abspath(__file__)  # .../src/infrastructure/utils/common.py
-        # Поднимаемся на 3 уровня: utils/ -> infrastructure/ -> src/
+        current_file = os.path.abspath(__file__)  # .../old_src/infrastructure/utils/common.py
+        # Поднимаемся на 3 уровня: utils/ -> infrastructure/ -> old_src/
         base_path = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))
     full_path = os.path.join(base_path, relative_path)
     return full_path

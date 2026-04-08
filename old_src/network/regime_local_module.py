@@ -2,8 +2,8 @@ from dataclasses import dataclass
 import httpx
 from typing import Optional, Dict, Any
 
-from src.core.config import ApiSettings
-from src.network.base import ApiClient
+from old_src.core.config import ApiSettings
+from old_src.network.base import ApiClient
 
 
 

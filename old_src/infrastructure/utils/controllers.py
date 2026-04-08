@@ -1,5 +1,5 @@
 from PySide6.QtCore import QObject, Signal, Slot, Property
-from src.application.application_storage import ApplicationStorage
+from old_src.application.application_storage import ApplicationStorage
 import logging
 
 logger = logging.getLogger(__name__)

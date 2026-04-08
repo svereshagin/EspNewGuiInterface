@@ -4,9 +4,9 @@ from PySide6.QtGui import QFontDatabase, QIcon
 from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QMainWindow
 import logging
-from src.application.application_storage import ApplicationStorage
+from old_src.application.application_storage import ApplicationStorage
 from .controllers import LMController, GisMtController, KKTController
-from src.infrastructure.utils.common import resource_path
+from old_src.infrastructure.utils.common import resource_path
 
 logger = logging.getLogger(__name__)
 

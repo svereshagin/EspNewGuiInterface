@@ -9,7 +9,7 @@ from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtGui import QFontDatabase, QIcon
 
-from src.network.regime_local_module import (
+from old_src.network.regime_local_module import (
     RegimeNetwork,
     RequestGetInfoRegime,
     RequestSetupRegime,

@@ -3,7 +3,7 @@ from typing import Optional
 
 from PySide6.QtCore import Signal, QObject, Property
 
-from src.domain.controlmodule.entity import ControlModuleInfo
+from old_src.domain.controlmodule.entity import ControlModuleInfo
 
 logger = logging.getLogger(__name__)
 

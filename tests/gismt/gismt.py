@@ -11,9 +11,9 @@ from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtGui import QFontDatabase, QIcon
 
 # Импорт сетевого слоя (DTO уже там)
-from src.network.gismt import GisMtNetwork
-from src.network.gismt import GisMtSettingsResponseDTO, GisMtSettingsUpdateDTO
-from src.network.gismt import InstanceResponseDTO, InstancesListResponseDTO
+from old_src.network.gismt import GisMtNetwork
+from old_src.network.gismt import GisMtSettingsResponseDTO, GisMtSettingsUpdateDTO
+from old_src.network.gismt import InstanceResponseDTO, InstancesListResponseDTO
 
 # Настройка логирования
 logging.basicConfig(

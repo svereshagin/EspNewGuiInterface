@@ -29,16 +29,16 @@ pip install -r requirements.txt
 
 #### Режим разработки (QML из файлов)
 ```bash
-python -m src.main --dev
+python -m old_src.main --dev
 ```
 
 #### Режим продакшена (скомпилированные ресурсы)
 ```bash
 # Сначала скомпилировать ресурсы из корня репозитория 
-uv run pyside6-rcc src/resources.qrc -o src/resources_rc.py
+uv run pyside6-rcc old_src/resources.qrc -o old_src/resources_rc.py
 
 # Затем запустить
-python -m src.main --compiled
+python -m old_src.main --compiled
 ```
 
 ## 📦 Ресурсы и компиляция
@@ -98,7 +98,7 @@ pyinstaller --onefile --windowed `
     --hidden-import PySide6.QtQuickWidgets `
     --collect-data PySide6 `
     --paths . `
-    src/main.py
+    old_src/main.py
 
 # Готовый .exe будет в папке dist/
 ```
@@ -121,7 +121,7 @@ pyinstaller --onefile --windowed \
     --hidden-import PySide6.QtQuickWidgets \
     --collect-data PySide6 \
     --paths . \
-    src/main.py
+    old_src/main.py
 
 # 3. Упаковка в AppImage (опционально)
 # Скачать linuxdeployqt и создать AppImage
@@ -155,7 +155,7 @@ pyinstaller --onefile --windowed \
             --add-data "ui:ui" \
             --icon path/to/icon.icns \
             --hidden-import PySide6.QtQml \
-            src/main.py
+            old_src/main.py
 ```
 
 ## 🐳 Docker сборка
@@ -239,10 +239,10 @@ make dist-linux     # сборка для Linux
 ### Проверка загрузки ресурсов
 ```bash
 # Проверить, что QML грузится из файлов
-python -m src.main --dev
+python -m old_src.main --dev
 
 # Проверить скомпилированные ресурсы
-python -m src.main --compiled
+python -m old_src.main --compiled
 ```
 
 ### Логи

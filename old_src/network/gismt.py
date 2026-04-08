@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Optional, List
 import httpx
 
-from src.core.config import ApiSettings
-from src.network.base import ApiClient
+from old_src.core.config import ApiSettings
+from old_src.network.base import ApiClient
 
 
 # DTO для сетевого слоя

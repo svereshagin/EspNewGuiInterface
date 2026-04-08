@@ -8,7 +8,7 @@ from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtGui import QFontDatabase, QIcon
 
 # Импорты для работы с сетью
-from src.network.tspiot import TspiotSetup, RequestCreateInstanceTSPIOT_DTO, TspiotResult
+from old_src.network.tspiot import TspiotSetup, RequestCreateInstanceTSPIOT_DTO, TspiotResult
 
 
 class RegistrationWorker(QObject):

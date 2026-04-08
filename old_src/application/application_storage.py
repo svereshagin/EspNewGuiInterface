@@ -1,23 +1,20 @@
-from PySide6.QtCore import QObject, Signal, Slot, Property, QTimer, Qt, QRunnable, QThreadPool, QThread
+from PySide6.QtCore import QObject, Signal, Slot, Property, QTimer, QRunnable, QThreadPool, QThread
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 import time
 import logging
 from PySide6.QtCore import Qt
-from src.controllers.controlmodule import ControlModuleViewModel
-from src.network.controlmodule import ControlmoduleNetwork, SystemsStatusResponseDTO
-from src.network.gismt import GisMtNetwork, GisMtSettingsResponseDTO, GisMtSettingsUpdateDTO
-from src.network.kkt import KKTNetwork
-from src.network.regime_local_module import (
+from old_src.controllers.controlmodule import ControlModuleViewModel
+from old_src.network.controlmodule import ControlmoduleNetwork, SystemsStatusResponseDTO
+from old_src.network.gismt import GisMtNetwork, GisMtSettingsUpdateDTO
+from new_src.network.kkt import KKTNetwork
+from old_src.network.regime_local_module import (
     RegimeNetwork,
     RequestGetInfoRegime,
-    RequestSetupRegime,
-    ResponseGetInfoRegime,
-    ResponseGetSettingsRegime
+    RequestSetupRegime
 )
-from src.network.tspiot import TspiotSetup, RequestCreateInstanceTSPIOT_DTO, RequestRegistrationTSPIOT_DTO, \
+from old_src.network.tspiot import TspiotSetup, RequestCreateInstanceTSPIOT_DTO, RequestRegistrationTSPIOT_DTO, \
     TspiotResult, ResponseRegistrationTSPIOT_DTO
-from src.domain.kkt.entity import CashInfo, KktInfo
 
 logger = logging.getLogger(__name__)
 

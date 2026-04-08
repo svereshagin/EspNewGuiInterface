@@ -5,8 +5,8 @@ from PySide6.QtWidgets import QApplication
 import logging
 
 # Исправленный импорт
-from src.infrastructure.utils.check_network_gismt import NetworkChecker
-from src.infrastructure.utils.check_network_gismt import CDNData
+from old_src.infrastructure.utils.check_network_gismt import NetworkChecker
+from old_src.infrastructure.utils.check_network_gismt import CDNData
 
 print("=== DEBUG INFO ===")
 print(f"Python path: {sys.path}")
@@ -15,8 +15,8 @@ print(f"Frozen: {getattr(sys, 'frozen', False)}")
 print(f"MEIPASS: {getattr(sys, '_MEIPASS', None)}")
 print("=================")
 
-from src.infrastructure.utils.common import check_compile_mode, resource_path
-from src.infrastructure.utils.qml_loader import MainQmlLoader
+from old_src.infrastructure.utils.common import check_compile_mode, resource_path
+from old_src.infrastructure.utils.qml_loader import MainQmlLoader
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

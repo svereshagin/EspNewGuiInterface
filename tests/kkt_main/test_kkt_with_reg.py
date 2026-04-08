@@ -2,19 +2,18 @@ import sys
 import os
 import asyncio
 import logging
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 
 from PySide6.QtCore import QObject, Slot, Property, Signal, QTimer, QUrl
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QMainWindow
 from PySide6.QtQuickWidgets import QQuickWidget
 from PySide6.QtGui import QFontDatabase, QIcon
 
-from src.domain.kkt.entity import CashInfo, ShiftState, KktInfo
-from src.network.kkt import KKTNetwork
-from src.network.controlmodule import ControlmoduleNetwork
-from src.network.tspiot import TspiotSetup, RequestCreateInstanceTSPIOT_DTO, RequestRegistrationTSPIOT_DTO
+from old_src.domain.kkt.entity import CashInfo, ShiftState, KktInfo
+from new_src.network.kkt import KKTNetwork
+from old_src.network.controlmodule import ControlmoduleNetwork
+from old_src.network.tspiot import TspiotSetup, RequestCreateInstanceTSPIOT_DTO, RequestRegistrationTSPIOT_DTO
 
 # Настройка логирования
 logging.basicConfig(
