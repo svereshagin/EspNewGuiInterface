@@ -1,8 +1,0 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
-    <qresource prefix="/">
-        <file alias="MainView.qml">MainView.qml</file>
-        <file alias="assets/image_89.png">assets/image_89.png</file>
-        <file>components/NetworkStatusPanel.qml</file>
-    </qresource>
-</RCC>

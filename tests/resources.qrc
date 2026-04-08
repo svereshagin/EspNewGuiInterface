@@ -1,6 +1,0 @@
-<!D/OCTYPE RCC>
-<RCC version="1.0">
-    <qresource prefix="/">
-        <file>simple.qml</file>
-    </qresource>
-</RCC>
