@@ -22,13 +22,15 @@ class KKTService:
         self.unique_inns: list[str] = []
 
 
-    def get_kkt_list(self, reset=False) -> Optional[CashInfo]:
+    def get_kkt_list(self, reset=False, is_test=False) -> Optional[CashInfo]:
         """
         Получить список всех касс
 
         reset: bool - сброс кэша (перезапись текущих данных)
-
+        is_test: bool - чтобы перейти в режим тестирования без кассового ПО(UI)
         """
+        if is_test:
+            self.load_test_data()
         logger.debug("Запрос списка касс через сервис")
         if not self.cash_info or reset:
             self.cash_info = self.dkkt_agent.get_dkkt_list()
@@ -61,3 +63,15 @@ class KKTService:
     def is_shift_opened(self, kkt: KktInfo) -> bool:
         return True if kkt.shiftState == ShiftState.OPENED else False
 
+
+    def load_test_data(self, cash_quantity = 10):
+        from src.tests.cash_test_data import TWO_CASH, ONE_CASH, ELEVEN_CASH, CASHES_WITH_SAME_INN, TEN_CASH
+        cash_data_map = {
+            1: ONE_CASH,
+            2: TWO_CASH,
+            10: TEN_CASH,
+            12: ELEVEN_CASH,
+            12_1: CASHES_WITH_SAME_INN
+        }
+
+        self.cash_info = CashInfo.from_api_response(cash_data_map.get(cash_quantity))
