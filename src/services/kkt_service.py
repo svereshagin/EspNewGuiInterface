@@ -14,9 +14,6 @@ class KKTService:
     """
 
     def __init__(self):
-        """
-        Без DI - просто передаём DTO в конструктор
-        """
         self.cash_info: Optional[CashInfo] = None
         self.dkkt_agent = KKTNetwork()
         self.unique_inns: list[str] = []

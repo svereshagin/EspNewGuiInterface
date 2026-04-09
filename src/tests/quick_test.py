@@ -81,7 +81,6 @@ if __name__ == "__main__":
         print(f"   - Ошибка: {storage.error if storage.error else 'нет'}")
         print(f"   - Касс в кэше: {len(storage.kktList)}")
         print(f"   - Текущая касса: {storage.currentSerial if storage.currentSerial else 'не выбрана'}")
-        print(f"   - Активных воркеров: {storage._active_workers}")
 
 
     # ТЕСТ 1: Первая загрузка
@@ -220,52 +219,15 @@ if __name__ == "__main__":
 
         print(f"\n   🧵 Главный поток: {current_thread().name}")
         print(f"   🏊‍♂️ QThreadPool:")
-        print(f"      - Максимум потоков: {storage._threadpool.maxThreadCount()}")
-        print(f"      - Активных потоков: {storage._threadpool.activeThreadCount()}")
+        print(f"      - Максимум потоков: {storage._executor._threadpool.maxThreadCount()}")
+        print(f"      - Активных потоков: {storage._executor._threadpool.activeThreadCount()}")
         print(f"   📊 Статистика сигналов:")
         print(f"      - list_changed: {callbacks_count['list_changed']}")
         print(f"      - current_changed: {callbacks_count['current_changed']}")
         print(f"      - loading_changed: {callbacks_count['loading_changed']}")
         print(f"      - errors: {callbacks_count['error']}")
 
-        test7_worker_creation()
 
-
-    # ТЕСТ 7: Создание и запуск воркера напрямую
-    def test7_worker_creation():
-        print("\n" + "=" * 50)
-        print("🚀 ТЕСТ 7: ПРЯМОЙ ЗАПУСК ВОРКЕРА")
-        print("=" * 50)
-
-        print("\n   ▶️ Создаём воркер напрямую...")
-
-        # Создаём воркер для теста
-        def test_function():
-            """Тестовая функция, которая выполнится в потоке"""
-            import time
-            print(f"   🔧 [Поток: {current_thread().name}] Выполняю тестовую функцию...")
-            time.sleep(1)
-            return "Тестовый результат"
-
-        worker = KKTWorker(test_function)
-        worker.signals.finished.connect(lambda result: test7_callback(result))
-        worker.signals.error.connect(lambda error: print(f"   ❌ Ошибка в воркере: {error}"))
-
-        print("   ▶️ Запускаем воркер...")
-        storage._threadpool.start(worker)
-
-        # Ждём результат
-        QTimer.singleShot(2000, test7_wait)
-
-
-    def test7_callback(result):
-        print(f"   ✅ [Поток: {current_thread().name}] Воркер завершился с результатом: {result}")
-
-
-    def test7_wait():
-        print("\n   ✅ Воркер успешно выполнен!")
-
-        test8_cache_expiry()
 
 
     # ТЕСТ 8: Истечение кэша
@@ -274,18 +236,18 @@ if __name__ == "__main__":
         print("🚀 ТЕСТ 8: ИСТЕЧЕНИЕ КЭША")
         print("=" * 50)
 
-        print(f"\n 📅 Кэш истекает через {storage._cache_ttl} секунд")
-        print(f"   📅 Последнее обновление: {storage._last_update}")
-        print(f"   ✅ Кэш валиден сейчас: {storage._is_cache_valid()}")
+        print(f"\n 📅 Кэш истекает через {storage._cache._cache_ttl} секунд")
+        print(f"   📅 Последнее обновление: {storage._cache._last_update}")
+        print(f"   ✅ Кэш валиден сейчас: {storage._cache._is_cache_valid()}")
 
-        print(f"\n   ⏳ Ждём {storage._cache_ttl + 1} секунд до истечения кэша...")
-        QTimer.singleShot((storage._cache_ttl + 1) * 1000, test8_check)
+        print(f"\n   ⏳ Ждём {storage._cache._cache_ttl + 1} секунд до истечения кэша...")
+        QTimer.singleShot((storage._cache._cache_ttl + 1) * 1000, test8_check)
 
 
     def test8_check():
-        print(f"\n   📅 Кэш валиден после ожидания: {storage._is_cache_valid()}")
+        print(f"\n   📅 Кэш валиден после ожидания: {storage._cache._is_cache_valid()}")
 
-        if not storage._is_cache_valid():
+        if not storage._cache._is_cache_valid():
             print("\n   ✅ Кэш успешно истёк!")
 
             # Пробуем загрузить снова (должна быть реальная загрузка)

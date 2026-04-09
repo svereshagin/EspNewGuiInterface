@@ -3,6 +3,20 @@ from dataclasses import dataclass
 
 
 @dataclass
+class TSPIoTRequestRegistration:
+    id: str  # идентификатор инстанса ЕСМ
+    kktSerial: str  # Серийный номер кассы
+    fnSerial: str  # Серийный номер ФН
+    kktInn: str  # ИНН на который зарегистрирована касса
+
+@dataclass
+class TSPIoTRequestCreateInstance:
+    kkt_serial: str  # идентификатор инстанса ЕСМ заполняется значением kktSerial из списка ДККТ
+    port: int | None = None  # порт для подключения оркестратора
+    softPort: int | None = None  # ПОРТ ДЛЯ ПМСР
+
+
+@dataclass
 class ESM:
     #url 1.2.3 -> 'http://127.0.0.1:51077/api/v1/instances/info/0128245621'
 
