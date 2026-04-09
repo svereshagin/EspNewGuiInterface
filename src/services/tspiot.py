@@ -18,12 +18,22 @@ class TSPIoTService:
     def get_instance_info(self):
         ...
 
-    def register_tspiot(self, id, kktSerial, fnSerial, kktInn, is_test=False):
-        dto = TSPIoTRequestRegistration(id, kktSerial, fnSerial, kktInn)
-        register_result = self.tspiot_agent.register_tspiot(dto)
-        ...
+    def register_tspiot(self, id, kkt_serial, fn_serial, kkt_inn, is_test=False):
+        dto = TSPIoTRequestRegistration(id, kkt_serial, fn_serial, kkt_inn)
+        if is_test:
+            ...
+        else:
+            register_result = self.tspiot_agent.register_tspiot(dto)
 
-    def create_esm_instance(self, kkt_setial: str):
-        dto = TSPIoTRequestCreateInstance(kkt_serial=kkt_setial)
-        create_esm_service_result = self.tspiot_agent.create_esm_service(dto)
+    def create_esm_instance(self, kkt_serial: str, is_test=False):
+        dto = TSPIoTRequestCreateInstance(kkt_serial=kkt_serial)
+        if is_test:
+            ...
+        else:
+            create_esm_service_result = self.tspiot_agent.create_esm_service(dto)
 
+    def get_instance_info(self, kkt_serial, is_test=False):
+        if is_test:
+            ...
+        else:
+            get_instance_result = self.tspiot_agent.get_instance_info(kkt_serial)
