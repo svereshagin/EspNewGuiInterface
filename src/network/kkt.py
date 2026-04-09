@@ -35,3 +35,4 @@ class KKTNetwork(ApiClient):
             logger.exception("Ошибка при запросе списка касс %s", e)
             return None
 
+
