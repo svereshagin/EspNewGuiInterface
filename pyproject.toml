@@ -8,5 +8,7 @@ dependencies = [
     "httpx>=0.28.1",
     "pyinstaller>=6.19.0",
     "pyside6>=6.10.2",
+    "pytest>=9.0.3",
+    "python-dotenv>=1.2.2",
     "singleton-decorator>=1.0.0",
 ]

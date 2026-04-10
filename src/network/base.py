@@ -36,17 +36,17 @@ class ApiClient:
     def __exit__(self, *_):
         self.close()
 
-    def get(self, endpoint: str, params: Optional[Dict] = None) -> httpx.Response:
-        return self.client.get(endpoint, params=params)
+    def get(self, endpoint: str, params: Optional[Dict] = None, timeout: Optional[float] = None) -> httpx.Response:
+        return self.client.get(endpoint, params=params, timeout=timeout)
 
-    def post(self, endpoint: str, data: Optional[Dict] = None) -> httpx.Response:
-        return self.client.post(endpoint, json=data)
+    def post(self, endpoint: str, data: Optional[Dict] = None, timeout: Optional[float] = None) -> httpx.Response:
+        return self.client.post(endpoint, json=data, timeout=timeout)
 
-    def put(self, endpoint: str, data: Optional[Dict] = None) -> httpx.Response:
-        return self.client.put(endpoint, json=data)
+    def put(self, endpoint: str, data: Optional[Dict] = None, timeout: Optional[float] = None) -> httpx.Response:
+        return self.client.put(endpoint, json=data, timeout=timeout)
 
-    def delete(self, endpoint: str) -> httpx.Response:
-        return self.client.delete(endpoint)
+    def delete(self, endpoint: str, timeout: Optional[float] = None) -> httpx.Response:
+        return self.client.delete(endpoint, timeout=timeout)
 
-    def patch(self, endpoint: str, data: Optional[Dict] = None) -> httpx.Response:
-        return self.client.patch(endpoint, json=data)
+    def patch(self, endpoint: str, data: Optional[Dict] = None, timeout: Optional[float] = None) -> httpx.Response:
+        return self.client.patch(endpoint, json=data, timeout=timeout)

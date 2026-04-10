@@ -12,7 +12,8 @@ from typing import Optional
 import httpx
 
 from dto.tspiot import TSPIoTRequestCreateInstance, TspiotCreateInstanceResult, TSPIoTRequestRegistration, \
-    TSPIoTRegistrationResponse
+    TSPIoTRegistrationResponse, TSPIoTInstancesResponseDTO, ServiceState, TSPIoTInstanceDTO, TSPIoTRegistrationData, \
+    TSPIoTInstanceInfoDTO, TSPIoTLicenseInfo
 from enums.network_errors.tspiot import TspiotResponseMessages
 from network.base import ApiClient
 
@@ -35,9 +36,16 @@ logging.getLogger("httpcore").setLevel(logging.WARNING)
 class TSPIoTNetwork(ApiClient):
     """
     Класс для создания и регистрации инстанса  tspiot
+
+    - создание инстанса ESM
+    - регистрация TSPIoT
+    - получение информации об инстансах
+    - получение статусов систем
+
     """
     ENDPOINT = "/api/v1/tspiot"
-    ESM_INFO_ENDPOINT = "/api/v1/instances/info/"
+    ESM_INFO_ENDPOINT = "/api/v1/instances/info"
+    ESM_STATUS_ENDPOINT = "/api/v1/status/"
 
     def create_esm_service(self, data: TSPIoTRequestCreateInstance):
         """Запрос на добавление сервиса ЕСМ /api/v1/tspiot (POST)"""
@@ -66,7 +74,7 @@ class TSPIoTNetwork(ApiClient):
             "kktInn": data.kktInn
         }
         try:
-            response = self.put(self.ENDPOINT, data=payload)
+            response = self.put(self.ENDPOINT, data=payload, timeout=120)
             logger.debug("PUT %s → статус %d", self.ENDPOINT, response.status_code)
 
             # Успешная регистрация (201 Created)
@@ -109,21 +117,75 @@ class TSPIoTNetwork(ApiClient):
                 error_message=str(e)
             )
 
+    def get_instances_info(self) -> Optional[TSPIoTInstancesResponseDTO]:
+        """
+        1.2.2. Запрос получения списка запущенных ЕСМ
+        GET /api/v1/instances/info
 
-    def get_instance_info(self, kkt_id: str) -> Optional[bool]:
-        """Получает информацию об инстансе"""
-        logger.debug("Запрос к %s%s", self.ESM_INFO_ENDPOINT, kkt_id)
+        Returns:
+            TSPIoTInstancesResponseDTO - объект со списком инстансов
+            None - если произошла ошибка или нет данных
+        """
+        logger.debug("Запрос списка инстансов ЕСМ: %s", self.ESM_INFO_ENDPOINT)
 
         try:
-            response = self.get(f'{self.ESM_INFO_ENDPOINT}{kkt_id}')
+            response = self.get(self.ESM_INFO_ENDPOINT)
+            logger.debug("GET %s → статус %d", self.ESM_INFO_ENDPOINT, response.status_code)
 
             if response.status_code == 200:
                 data = response.json()
-                result = self.is_tspiot_empty(data.get("regData", {}).get("tspiotId", ""))
-                logger.debug("Инстанс %s существует: %s", kkt_id, result)
+                instances_list = []
+
+                for inst_data in data.get("instances", []):
+                    instance = TSPIoTInstanceDTO(
+                        id=inst_data.get("id", ""),
+                        port=inst_data.get("port", 0),
+                        serviceState=inst_data.get("serviceState", ServiceState.UNKNOWN)
+                    )
+                    instances_list.append(instance)
+
+                result = TSPIoTInstancesResponseDTO(instances=instances_list)
+                logger.info("Найдено инстансов ЕСМ: %d", result.count)
+                for inst in instances_list:
+                    logger.debug("  - ID: %s, порт: %d, состояние: %s", inst.id, inst.port, inst.serviceState)
+
                 return result
 
-            logger.warning("Статус %s при проверке инстанса %s", response.status_code, kkt_id)
+            elif response.status_code == 204:
+                # Нет ни одного инстанса ESM, ответ пустой
+                logger.info("Нет зарегистрированных инстансов ЕСМ (204)")
+                return TSPIoTInstancesResponseDTO(instances=[])
+
+            else:
+                logger.error("Ошибка получения списка инстансов: статус %d", response.status_code)
+                return None
+        except Exception as e:
+            logger.error(e)
+
+    def get_instance_info(self, instance_id: str) -> None | TSPIoTInstanceInfoDTO | int:
+        """
+        1.2.3. Запрос получения информации из ЕСМ
+        GET /api/v1/instances/info/{id}
+
+        Returns:
+            TSPIoTInstanceInfoDTO - детальная информация об инстансе
+            None - если произошла ошибка или инстанс не найден
+        """
+        endpoint_path = self.ESM_INFO_ENDPOINT + "/"
+        logger.debug("Запрос информации об инстансе: %s%s", endpoint_path, instance_id)
+
+        try:
+            response = self.get(f'{endpoint_path}{instance_id}')
+            logger.debug("GET %s%s → статус %d", endpoint_path, instance_id, response.status_code)
+
+            if response.status_code == 200:
+                data = response.json()
+                logger.info("Получена информация об инстансе %s", instance_id)
+                return self._parse_instance_info_response(data)
+
+            elif response.status_code == 204:
+                logger.warning("Нет информации об инстансе %s (204)", instance_id)
+                return 204
 
         except httpx.TimeoutException:
             logger.error(TspiotResponseMessages.TIMEOUT_ERROR.value)
@@ -132,9 +194,42 @@ class TSPIoTNetwork(ApiClient):
             logger.error(TspiotResponseMessages.CONNECTION_ERROR.value)
             return None
         except Exception as e:
-            logger.exception("Ошибка при проверке инстанса %s: %s", kkt_id, e)
+            logger.exception("Ошибка при получении информации об инстансе %s: %s", instance_id, e)
             return None
 
+    def _parse_instance_info_response(self, data: dict) -> TSPIoTInstanceInfoDTO:
+        """Парсит JSON ответ в TSPIoTInstanceInfoDTO"""
+
+        # Парсим лицензии (может быть несколько)
+        licenses_list = []
+        for lic in data.get("licenses", []):
+            license_info = TSPIoTLicenseInfo(
+                isActive=lic.get("isActive", False),
+                activeTill=lic.get("activeTill", ""),
+                lastSync=lic.get("lastSync", "")
+            )
+            licenses_list.append(license_info)
+
+        # Парсим регистрационные данные
+        reg_data_raw = data.get("regData", {})
+        registration_data = TSPIoTRegistrationData(
+            tspiotId=reg_data_raw.get("tspiotId", ""),
+            gismtTspiotId=reg_data_raw.get("gismtTspiotId", ""),
+            kktSerial=reg_data_raw.get("kktSerial", ""),
+            fnSerial=reg_data_raw.get("fnSerial", ""),
+            kktInn=reg_data_raw.get("kktInn", ""),
+            espToken=reg_data_raw.get("espToken", "")
+        )
+
+        # Создаем и возвращаем DTO
+        return TSPIoTInstanceInfoDTO(
+            logPath=data.get("logPath", ""),
+            state=data.get("state", ""),
+            clientPort=data.get("clientPort", 0),
+            version=data.get("version", ""),
+            licenses=licenses_list,
+            regData=registration_data
+        )
 
 
     def _process_create_response(self, response, kkt_serial: str):
@@ -218,73 +313,6 @@ class TSPIoTNetwork(ApiClient):
 
 
 
-# Реальные данные из CashInfo
-KKT_SERIAL = "00106327428745"
-FN_SERIAL = "9999078902018941"
-KKT_INN = "9717169631"
-KKT_RNM = "0000000001040014"
-MODEL_NAME = "АТОЛ FPrint-22ПТК"
-DKKT_VERSION = "10.10.8.23"
 
 
 
-
-def main():
-    logger.info("=" * 70)
-    logger.info("Тестирование TSPIoTNetwork с реальными данными кассы")
-    logger.info("=" * 70)
-    logger.info(f"Касса: {KKT_SERIAL}")
-    logger.info(f"ФН: {FN_SERIAL}")
-    logger.info(f"ИНН: {KKT_INN}")
-    logger.info(f"Модель: {MODEL_NAME}")
-    logger.info(f"Версия ДККТ: {DKKT_VERSION}")
-    logger.info("=" * 70)
-
-    # Создаём клиент
-    with TSPIoTNetwork() as network:
-        # Проверяем конфигурацию
-        # Шаг 1: Проверить, существует ли уже инстанс
-        logger.info("\n1️⃣ Проверка существования инстанса...")
-        exists = network.get_instance_info(KKT_SERIAL)
-        logger.info(f"   Инстанс существует: {exists}")
-
-        # Шаг 2: Создать ESM сервис (если не существует)
-        logger.info("\n2️⃣ Создание ESM сервиса...")
-        create_request = TSPIoTRequestCreateInstance(kkt_serial=KKT_SERIAL)
-        create_result = network.create_esm_service(create_request)
-
-        logger.info(f"   Success: {create_result.success}")
-        logger.info(f"   Status: {create_result.status}")
-        logger.info(f"   tspiot_id: {create_result.tspiot_id}")
-        if create_result.error_message:
-            logger.info(f"   Error: {create_result.error_message}")
-        if create_result.error_code:
-            logger.info(f"   Error code: {create_result.error_code}")
-
-        # Шаг 3: Зарегистрировать TSPIOT
-        logger.info("\n3️⃣ Регистрация TSPIOT...")
-        register_request = TSPIoTRequestRegistration(
-            id=KKT_SERIAL,
-            kktSerial=KKT_SERIAL,
-            fnSerial=FN_SERIAL,
-            kktInn=KKT_INN
-        )
-        register_result = network.register_tspiot(register_request)
-
-        logger.info(f"   Success: {register_result.success}")
-        logger.info(f"   tspiot_id: {register_result.tspiot_id}")
-        if register_result.error_message:
-            logger.info(f"   Error: {register_result.error_message}")
-
-        # Шаг 4: Повторно проверить статус (опционально)
-        logger.info("\n4️⃣ Повторная проверка статуса...")
-        exists_after = network.get_instance_info(KKT_SERIAL)
-        logger.info(f"   Инстанс существует после операций: {exists_after}")
-
-        logger.info("\n" + "=" * 70)
-        logger.info("✅ Тестирование завершено")
-        logger.info("=" * 70)
-
-
-if __name__ == "__main__":
-    main()
