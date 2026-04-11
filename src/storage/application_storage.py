@@ -1,7 +1,7 @@
 # storage/app_storage.py
 import logging
 from typing import Optional, Dict, List
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal, Property, Slot
 
 from dto.tspiot import TSPIoTInstancesResponseDTO, TSPIoTInstanceInfoDTO, TSPIoTSystemsStatusResponseDTO
 from src.dto.kkt import CashInfo, KktInfo
@@ -66,6 +66,7 @@ class AppStorage(QObject):
 
 
     # ─── Public Methods ─────────────────────────────────────────
+    @Slot()
     def load_kkt(self, reset: bool = False):
         """Асинхронно загружает список касс"""
         if not reset and self._cache.is_valid() and self._kkt_list:
@@ -74,6 +75,9 @@ class AppStorage(QObject):
         def on_success(result: CashInfo):
             self._update_cache(result)
             self._cache.set(result)
+
+            print(f"✅ Загружено касс: {len(self._kkt_list)}")
+            print(f"✅ Первая касса: {self._kkt_list[0] if self._kkt_list else 'пусто'}")
 
             if not self._current_serial and self._kkt_list:
                 self._current_serial = self._kkt_list[0].get('kktSerial', '')
@@ -93,17 +97,19 @@ class AppStorage(QObject):
             reset=reset
         )
 
+    @Slot()
     def reload_kkt(self):
         """Принудительная перезагрузка"""
         self.load_kkt(reset=True)
 
-
+    @Slot(str, result='QVariant')  # ← правильная сигнатура
     def get_kkt_info(self, serial: str) -> dict:
-        """Возвращает информацию о кассе из кэша"""
+        if not serial:
+            return {}
         return self._kkt_info_cache.get(serial, {})
 
+    @Slot(str)
     def set_current_cash(self, serial: str):
-        """Устанавливает текущую кассу"""
         if self._current_serial != serial and serial in self._kkt_info_cache:
             self._current_serial = serial
             self.currentSerialChanged.emit()
@@ -113,21 +119,22 @@ class AppStorage(QObject):
 
     # ─── Properties ─────────────────────────────────────────────
 
-    @property
-    def kktList(self) -> List[dict]:
+    @Property('QVariantList', notify=kktListChanged)
+    def kktList(self):
         return self._kkt_list
 
-    @property
+    @Property(str, notify=currentSerialChanged)
     def currentSerial(self) -> str:
         return self._current_serial
 
-    @property
+    @Property(bool, notify=loadingChanged)
     def is_loading(self) -> bool:
         return self._executor.is_loading
 
-    @property
+    @Property(str, notify=errorChanged)
     def error(self) -> str:
         return self._executor.error
+
 
     @property
     def get_unique_inn(self):
@@ -137,15 +144,15 @@ class AppStorage(QObject):
 
     # ─── Private Methods ────────────────────────────────────────
     def _update_cache(self, cash_info: CashInfo):
-        """Обновляет внутренний кэш из DTO"""
-        self._kkt_list.clear()
-        self._kkt_info_cache.clear()
-
+        new_list = []
+        new_cache = {}
         for kkt in cash_info.kkt:
             kkt_dict = self._kkt_to_dict(kkt)
-            self._kkt_list.append(kkt_dict)
-            self._kkt_info_cache[kkt.kktSerial] = kkt_dict
+            new_list.append(kkt_dict)
+            new_cache[kkt.kktSerial] = kkt_dict
 
+        self._kkt_list = new_list  # ← новый объект, не мутация
+        self._kkt_info_cache = new_cache
     def _kkt_to_dict(self, kkt: KktInfo) -> dict:
         return KktMapper.to_dict(kkt)
 
@@ -284,6 +291,7 @@ class AppStorage(QObject):
             }
             self._instances_list.append(inst_dict)
 
+    @Slot()
     def clear_tspiot_cache(self):
         """Очищает весь кэш TSPIoT"""
         self._cache_instances.invalidate()

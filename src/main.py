@@ -1,12 +1,27 @@
-# main.py
 import sys
 import os
-from pathlib import Path
 
+# ✅ ПЕРВЫМИ, до любых Qt импортов
+os.environ["QT_LOGGING_RULES"] = (
+    "*.debug=false;"
+    "*.info=false;"
+    "qt.scenegraph.*=false;"
+    "qt.quick.*=false;"
+    "qt.qml.binding=false;"
+    "qt.qml.compiler=false;"
+    "qt.qml.diskcache=false;"
+    "qt.qml.gc=false;"
+    # только нужное
+    "qml=true;"
+    "js=true;"
+    "qt.qml.context=true"
+)
+os.environ["QT_MESSAGE_PATTERN"] = "[%{type}] %{message}"
+
+from pathlib import Path
+from PySide6.QtCore import qInstallMessageHandler, QtMsgType, QUrl
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
-from PySide6.QtCore import QUrl
-
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -15,12 +30,38 @@ from src.services.tspiot import TSPIoTService
 from src.storage.application_storage import AppStorage
 
 
+# Системный шум, который может просочиться сквозь rules
+_NOISE = (
+    "(RT)", "syncAndRender", "QQuickWindowPrivate",
+    "atlastexture", "QSGNode", "time in renderer",
+    "[rub]", "[window", "unlock after sync",
+    "Frame prepared", "done drawing", "processEvents",
+    "sceneGraphChanged", "waking Gui", "rendering",
+)
+
+
+def qt_message_handler(msg_type, context, message):
+    msg = message if isinstance(message, str) else message.toString()
+
+    if any(noise in msg for noise in _NOISE):
+        return
+
+    file = getattr(context, 'file', '') or ''
+    line = getattr(context, 'line', 0) or 0
+
+    prefix_map = {
+        QtMsgType.QtDebugMsg:    "🐛 [DEBUG]",
+        QtMsgType.QtInfoMsg:     "ℹ️  [INFO]",
+        QtMsgType.QtWarningMsg:  "⚠️  [WARN]",
+        QtMsgType.QtCriticalMsg: "❌ [CRIT]",
+        QtMsgType.QtFatalMsg:    "💀 [FATAL]",
+    }
+    prefix = prefix_map.get(msg_type, "[???]")
+    location = f" ({os.path.basename(file)}:{line})" if file else ""
+    print(f"{prefix}{location} {msg}", flush=True)
+
+
 def get_resource_path() -> str:
-    """
-    Onefile-совместимый путь к ресурсам.
-    В dev-режиме — рядом с main.py.
-    В PyInstaller onefile — из sys._MEIPASS.
-    """
     if hasattr(sys, "_MEIPASS"):
         base = sys._MEIPASS
     else:
@@ -29,29 +70,34 @@ def get_resource_path() -> str:
 
 
 def main():
+    qInstallMessageHandler(qt_message_handler)
+
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
 
+    engine.warnings.connect(
+        lambda warnings: [print(f"⚠️ QML WARNING: {w.toString()}", flush=True) for w in warnings]
+    )
 
     kkt_service = KKTService()
     tspiot_service = TSPIoTService()
-
-    # Создаём хранилище
     app_storage = AppStorage(
         kkt_service=kkt_service,
         tspiot_service=tspiot_service,
         cache_ttl_seconds=300,
-        is_test=False  # Режим тестирования отключён
+        is_test=True
     )
 
-    # Регистрируем в QML
     engine.rootContext().setContextProperty("AppStorage", app_storage)
 
-    # Путь к QML файлу
     qml_file = get_resource_path()
-    engine.load(qml_file)
+    print(f"ℹ️  QML path: {qml_file}", flush=True)
+    print(f"ℹ️  File exists: {os.path.exists(qml_file)}", flush=True)
+
+    engine.load(QUrl.fromLocalFile(os.path.abspath(qml_file)))
 
     if not engine.rootObjects():
+        print("💀 FAILED: no root objects", flush=True)
         sys.exit(-1)
 
     sys.exit(app.exec())
