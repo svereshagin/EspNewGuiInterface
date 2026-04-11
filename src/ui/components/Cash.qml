@@ -24,7 +24,7 @@ Rectangle {
         spacing: 5
 
         Text {
-            text: kktData.modelName || "—"
+            text: "Модель:" + (kktData.modelName || "—")
             font.bold: true
             font.pixelSize: 14
             color: "#212121"
@@ -32,22 +32,19 @@ Rectangle {
             Layout.fillWidth: true
         }
         Text {
-            text: "S/N: " + (kktData.kktSerial || "—")
+            text: "ФН: " + (kktData.fnSerial || "—")
             color: "#444"
             font.pixelSize: 12
         }
+
         Text {
             text: "ИНН: " + (kktData.kktInn || "—")
-            color: "#555"
-            font.pixelSize: 12
+            color: "#777"
+            font.pixelSize: 11
         }
+
         Text {
-            text: "РНМ: " + (kktData.kktRnm || "—")
-            color: "#555"
-            font.pixelSize: 12
-        }
-        Text {
-            text: "ФН: " + (kktData.fnSerial || "—")
+            text: "Статус смены: " + (kktData.shiftState || "—")
             color: "#777"
             font.pixelSize: 11
         }
