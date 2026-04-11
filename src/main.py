@@ -1,7 +1,7 @@
 import sys
 import os
 
-# ✅ ПЕРВЫМИ, до любых Qt импортов
+# Настройка логгирования QML [ДО ЛЮБЫХ ИМПОРТОВ]
 os.environ["QT_LOGGING_RULES"] = (
     "*.debug=false;"
     "*.info=false;"
