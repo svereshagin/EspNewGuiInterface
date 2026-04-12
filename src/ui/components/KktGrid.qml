@@ -20,7 +20,11 @@ Item {
                     height: 190
                     kktData: modelData
                     isSelected: AppStorage.currentSerial === modelData.kktSerial
-                    onCardClicked: AppStorage.set_current_cash(modelData.kktSerial)
+
+                    onCardClicked: {
+                        AppStorage.set_current_cash(kktData.kktSerial)
+                        AppStorage.load_instance_info(kktData.kktSerial)
+                    }
                 }
             }
         }

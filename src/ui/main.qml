@@ -43,5 +43,13 @@ ApplicationWindow {
         function onKktListChanged() {
             console.log("kktList обновлён:", AppStorage.kktList.length)
         }
+
+        function onInstanceStatusChanged(instanceId, info) {
+            console.log("state:", info.state)
+            console.log("version:", info.version)
+            console.log("port:", info.clientPort)
+            console.log("inn:", info.regData.kktInn)
+            console.log("license active:", info.licenses[0].isActive)
+        }
     }
 }

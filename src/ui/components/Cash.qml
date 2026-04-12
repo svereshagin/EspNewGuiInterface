@@ -42,7 +42,17 @@ Rectangle {
             color: "#777"
             font.pixelSize: 11
         }
+        Text {
+            text: "Наименование: " + (kktData.modelName || "—")
+            color: "#777"
+            font.pixelSize: 11
+        }
 
+        Text {
+            text: "Версия: " + (kktData.dkktVersion || "—")
+            color: "#777"
+            font.pixelSize: 11
+        }
         Text {
             text: "Статус смены: " + (kktData.shiftState || "—")
             color: "#777"

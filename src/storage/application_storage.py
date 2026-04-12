@@ -10,6 +10,8 @@ from src.storage.async_executor import AsyncExecutor
 from src.storage.cache_manager import CacheManager
 from src.storage.mappers.kkt_mapper import KktMapper
 from src.services.tspiot import TSPIoTService
+from src.storage.mappers.tspiot_mapper import TspiotMapper
+
 
 logger =  logging.getLogger(__name__)
 
@@ -26,7 +28,7 @@ class AppStorage(QObject):
 
     instancesListChanged = Signal()
     currentInstanceChanged = Signal()
-    instanceStatusChanged = Signal(str, object)
+    instanceStatusChanged = Signal(str, 'QVariant')
     registrationProgressChanged = Signal(str, int)
     registrationCompleted = Signal(str, bool, str)  # (instance_id, success, message)
 
@@ -215,7 +217,7 @@ class AppStorage(QObject):
             self.load_instance_info(instance_id)
             # self.load_system_status(instance_id)
 
-
+    @Slot(str)
     def load_instance_info(self, instance_id: str, reset: bool = False):
         """
         Асинхронно загружает детальную информацию об инстансе
@@ -226,15 +228,17 @@ class AppStorage(QObject):
         if not reset and self._cache_instance_info.is_valid(cache_key):
             cached = self._cache_instance_info.get(cache_key)
             if cached:
-                logger.debug(f"Используем кэш для инстанса {instance_id}")
                 self._instances_info_cache[instance_id] = cached
-                self.instanceStatusChanged.emit(instance_id, cached)
+                mapped = TspiotMapper.instance_info_to_dict(cached)  # ← добавить маппинг
+                self.instanceStatusChanged.emit(instance_id, mapped)  # ← отдавать dict
                 return
 
         def on_success(result: TSPIoTInstanceInfoDTO):
-            self._instances_info_cache[instance_id] = result
-            self._cache_instance_info.set(result, key=cache_key)
-            self.instanceStatusChanged.emit(instance_id, result)
+            mapped = TspiotMapper.instance_info_to_dict(result)
+            print(f"🔍 mapped: {mapped}")  # ← посмотри что выходит
+            self._instances_info_cache[instance_id] = mapped
+            self._cache_instance_info.set(result, key=cache_key)  # в кэше храним DTO
+            self.instanceStatusChanged.emit(instance_id, mapped)  # в UI отдаём dict
 
         def on_error(error_msg: str):
             logger.error(f"Error loading instance info for {instance_id}: {error_msg}")
@@ -244,7 +248,7 @@ class AppStorage(QObject):
             func=self._tspiot_service.get_instance_info,
             on_success=on_success,
             on_error=on_error,
-            instance_id=instance_id,
+            kkt_serial=instance_id,
             is_test=self.is_test
         )
 
