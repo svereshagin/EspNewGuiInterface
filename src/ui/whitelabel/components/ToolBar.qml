@@ -17,6 +17,20 @@ Item {
     }
 
     // --- Выпадающий список касс ---
+
+    Rectangle {
+        id: rectangle_8253
+
+        x: 11
+        y: 4
+
+        height: 78
+        width: 800
+
+        border.color: "#de2626"
+        border.width: 1
+        color: "transparent"
+    }
     ComboBox {
         id: kassaCombo
         x: 13
@@ -46,8 +60,12 @@ Item {
             if (currentIndex === 0) {
                 toolBar.selectedKktSerial = ""
             } else {
-                toolBar.selectedKktSerial = currentText
-                console.log("Выбрана касса:", toolBar.selectedKktSerial)
+
+            var kktData = AppStorage.kktList[currentIndex - 1]
+            toolBar.selectedKktSerial = kktData.kktSerial
+            console.log("Выбрана касса:", toolBar.selectedKktSerial)
+            AppStorage.set_current_cash(kktData.kktSerial)
+            AppStorage.load_instance_info(kktData.kktSerial)
             }
         }
 

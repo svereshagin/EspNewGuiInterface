@@ -17,7 +17,16 @@ Window {
         width: parent.width
         height: 70
         z: 1
-}
+    }
+
+    TSPIOT {
+        x: 0
+        y: 0
+        width: parent.width
+        height: 70
+        z: 1
+        instanceInfo: null
+    }
 
     Rectangle {
         id: frame_1171279325
@@ -92,25 +101,6 @@ Window {
                 width: 256
 
                 color: "#ffffff"
-            }
-            Text {
-                id: iD_
-
-                x: 10
-                y: 9
-
-                height: 19
-                width: 22
-
-                color: "#000000"
-                font.family: "Inter"
-                font.pixelSize: 16
-                font.weight: Font.Normal
-                horizontalAlignment: Text.AlignLeft
-                text: "ID:"
-                textFormat: Text.PlainText
-                verticalAlignment: Text.AlignTop
-                wrapMode: Text.WordWrap
             }
             Text {
                 id: element
@@ -915,8 +905,6 @@ Window {
             console.log("kktList обновлён:", AppStorage.kktList.length)
         }
 
-
-
         function onInstanceStatusChanged(instanceId, info) {
              console.log("Keys:", Object.keys(info))
             console.log(info.licenses[0].isActive)
@@ -928,5 +916,4 @@ Window {
             console.log("license active:", info.licenses[0].isActive)
         }
     }
-
 }

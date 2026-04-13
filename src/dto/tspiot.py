@@ -1,4 +1,4 @@
-# dto/tspiot.qml.py
+# dto/TSPIOT.qml.py
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, List
