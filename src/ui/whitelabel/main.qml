@@ -915,6 +915,8 @@ Window {
             console.log("kktList обновлён:", AppStorage.kktList.length)
         }
 
+
+
         function onInstanceStatusChanged(instanceId, info) {
              console.log("Keys:", Object.keys(info))
             console.log(info.licenses[0].isActive)
