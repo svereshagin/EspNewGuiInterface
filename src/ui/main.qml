@@ -45,6 +45,9 @@ ApplicationWindow {
         }
 
         function onInstanceStatusChanged(instanceId, info) {
+             console.log("Keys:", Object.keys(info))
+            console.log(info.licenses[0].isActive)
+            console.log("Keys:", Object.keys(info.licenses))
             console.log("state:", info.state)
             console.log("version:", info.version)
             console.log("port:", info.clientPort)

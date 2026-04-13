@@ -66,7 +66,7 @@ def get_resource_path() -> str:
         base = sys._MEIPASS
     else:
         base = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(base, "ui/main.qml")
+    return os.path.join(base, "ui/whitelabel/main.qml")
 
 
 def main():

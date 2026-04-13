@@ -9,7 +9,7 @@ class TspiotResponseMessages(enum.Enum):
     MISSING_FIELDS = "В ответе отсутствуют поля 'id' и/или 'serviceState'"
     NON_201_RESPONSE = "Сервер вернул код"
     JSON_PARSE_ERROR = "Не удалось разобрать JSON-ответ"
-    CRITICAL_ERROR_PREFIX = "Критическая ошибка при создании tspiot: "
-    SUCCESS_PREFIX = "tspiot успешно запущен → id="
+    CRITICAL_ERROR_PREFIX = "Критическая ошибка при создании tspiot.qml: "
+    SUCCESS_PREFIX = "tspiot.qml успешно запущен → id="
     UNEXPECTED_STATUS_PREFIX = "Сервис находится в состоянии"
 

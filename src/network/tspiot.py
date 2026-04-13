@@ -35,7 +35,7 @@ logging.getLogger("httpcore").setLevel(logging.WARNING)
 
 class TSPIoTNetwork(ApiClient):
     """
-    Класс для создания и регистрации инстанса  tspiot
+    Класс для создания и регистрации инстанса  tspiot.qml
 
     - создание инстанса ESM
     - регистрация TSPIoT
@@ -43,12 +43,12 @@ class TSPIoTNetwork(ApiClient):
     - получение статусов систем
 
     """
-    ENDPOINT = "/api/v1/tspiot"
+    ENDPOINT = "/api/v1/tspiot.qml"
     ESM_INFO_ENDPOINT = "/api/v1/instances/info"
     ESM_STATUS_ENDPOINT = "/api/v1/status/"
 
     def create_esm_service(self, data: TSPIoTRequestCreateInstance):
-        """Запрос на добавление сервиса ЕСМ /api/v1/tspiot (POST)"""
+        """Запрос на добавление сервиса ЕСМ /api/v1/tspiot.qml (POST)"""
         logger.debug("Создание ESM сервиса для kkt_serial=%s", data.kkt_serial)
 
         try:
@@ -64,7 +64,7 @@ class TSPIoTNetwork(ApiClient):
     def register_tspiot(self, data: TSPIoTRequestRegistration) -> TSPIoTRegistrationResponse:
         """
         Регистрирует TSPIOT
-        PUT -> "/api/v1/tspiot"
+        PUT -> "/api/v1/tspiot.qml"
         """
         logger.debug("Регистрация TSPIOT для kktSerial=%s", data.kktSerial)
         payload = {

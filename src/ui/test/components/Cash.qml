@@ -24,7 +24,7 @@ Rectangle {
         spacing: 5
 
         Text {
-            text: "Модель:" + (kktData.modelName || "—")
+            text: "Модель:" + (kktData.modelName || "Нет информации")
             font.bold: true
             font.pixelSize: 14
             color: "#212121"
@@ -32,29 +32,29 @@ Rectangle {
             Layout.fillWidth: true
         }
         Text {
-            text: "ФН: " + (kktData.fnSerial || "—")
+            text: "ФН: " + (kktData.fnSerial || "Нет информации")
             color: "#444"
             font.pixelSize: 12
         }
 
         Text {
-            text: "ИНН: " + (kktData.kktInn || "—")
+            text: "ИНН: " + (kktData.kktInn || "Нет информации")
             color: "#777"
             font.pixelSize: 11
         }
         Text {
-            text: "Наименование: " + (kktData.modelName || "—")
+            text: "Наименование: " + (kktData.modelName || "Нет информации")
             color: "#777"
             font.pixelSize: 11
         }
 
         Text {
-            text: "Версия: " + (kktData.dkktVersion || "—")
+            text: "Версия: " + (kktData.dkktVersion || "Нет информации")
             color: "#777"
             font.pixelSize: 11
         }
         Text {
-            text: "Статус смены: " + (kktData.shiftState || "—")
+            text: "Статус смены: " + (kktData.shiftState || "Нет информации")
             color: "#777"
             font.pixelSize: 11
         }
