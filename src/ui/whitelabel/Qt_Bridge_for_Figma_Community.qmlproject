@@ -5,29 +5,24 @@ import QmlProject
 Project {
     qt6Project: true
     importPaths: [ "." ]
-    mainFile: "main.qml"
+    mainFile: "Gadget.ui.qml"
     QmlFiles {
-        files: [
-            "main.qml",
-            "Line_2.ui.qml",
-            "Line_3.ui.qml",
-            "Line_4.ui.qml"
-        ]
+        files: [ "Gadget.ui.qml" ]
     }
     ImageFiles {
         files: [
-            "assets/image_98.png",
-            "assets/image_98@2x.png",
-            "assets/image_99.png",
-            "assets/image_99@2x.png",
-            "assets/image_97.png",
-            "assets/image_97@2x.png",
-            "assets/line_2.png",
-            "assets/line_2@2x.png",
+            "assets/line_7.png",
+            "assets/line_7@2x.png",
+            "assets/line_6.png",
+            "assets/line_6@2x.png",
+            "assets/line_5.png",
+            "assets/line_5@2x.png",
+            "assets/line_4.png",
+            "assets/line_4@2x.png",
             "assets/line_3.png",
             "assets/line_3@2x.png",
-            "assets/line_4.png",
-            "assets/line_4@2x.png"
+            "assets/line_2.png",
+            "assets/line_2@2x.png"
         ]
     }
     FontFiles {

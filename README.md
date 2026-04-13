@@ -181,8 +181,8 @@ CMD ["/app/dist/tspiot-gui"]
 
 Сборка:
 ```bash
-docker build -t TSPIOT.qml-builder .
-docker run --rm -v ${PWD}/dist:/app/dist TSPIOT.qml-builder
+docker build -t TspIot.qml-builder .
+docker run --rm -v ${PWD}/dist:/app/dist TspIot.qml-builder
 ```
 
 ## 📁 Структура проекта

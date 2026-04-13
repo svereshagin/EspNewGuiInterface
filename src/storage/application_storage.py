@@ -32,7 +32,8 @@ class AppStorage(QObject):
     registrationProgressChanged = Signal(str, int)
     registrationCompleted = Signal(str, bool, str)  # (instance_id, success, message)
 
-
+    registrationStarted = Signal(str)
+    _is_registering: bool = False
 
     def __init__(self, kkt_service: KKTService, tspiot_service: TSPIoTService, cache_ttl_seconds: int = 300, parent=None, is_test=True):
         super().__init__(parent)
@@ -119,6 +120,19 @@ class AppStorage(QObject):
     def set_current_inn(self, inn: str):
         self._current_inn = inn
 
+    @Property(bool, notify=registrationCompleted)
+    def isRegistering(self) -> bool:
+        return self._is_registering
+
+    @Slot(str, str, str)
+    def start_registration(self, kkt_serial: str, fn_serial: str, kkt_inn: str):
+        if self._is_registering:
+            return
+        self._is_registering = True
+        self.registrationStarted.emit(kkt_serial)
+        self.create_and_register_instance(kkt_serial, fn_serial, kkt_inn)
+
+
     # ─── Properties ─────────────────────────────────────────────
 
     @Property('QVariantList', notify=kktListChanged)
@@ -191,14 +205,15 @@ class AppStorage(QObject):
             return result
 
         def on_success(result: tuple):
+            self._is_registering = False  # ← добавь
             success, message = result
             self.registrationCompleted.emit(kkt_serial, success, message)
             if success:
-                # Обновляем кэш и список
                 self.load_instances(reset=True)
                 self.load_instance_info(kkt_serial, reset=True)
 
         def on_error(error_msg: str):
+            self._is_registering = False  # ← добавь
             self.registrationCompleted.emit(kkt_serial, False, error_msg)
 
         self._executor.execute(

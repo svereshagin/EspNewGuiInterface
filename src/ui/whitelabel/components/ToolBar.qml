@@ -8,6 +8,8 @@ Item {
 
     // Сохраняем выбранную кассу
     property string selectedKktSerial: ""
+     signal kktSelected(var kktData)
+
 
     Connections {
         target: AppStorage
@@ -57,17 +59,19 @@ Item {
         }
 
         onCurrentIndexChanged: {
-            if (currentIndex === 0) {
-                toolBar.selectedKktSerial = ""
-            } else {
-
-            var kktData = AppStorage.kktList[currentIndex - 1]
-            toolBar.selectedKktSerial = kktData.kktSerial
-            console.log("Выбрана касса:", toolBar.selectedKktSerial)
-            AppStorage.set_current_cash(kktData.kktSerial)
-            AppStorage.load_instance_info(kktData.kktSerial)
+                console.log("📋 currentIndex изменился:", currentIndex, "длина списка:", AppStorage.kktList.length)
+                if (currentIndex === 0) {
+                    toolBar.selectedKktSerial = ""
+                    toolBar.kktSelected({})
+                } else {
+                    var kktData = AppStorage.kktList[currentIndex - 1]
+                    console.log("📤 kktData:", JSON.stringify(kktData))
+                    toolBar.selectedKktSerial = kktData.kktSerial
+                    AppStorage.set_current_cash(kktData.kktSerial)
+                    AppStorage.load_instance_info(kktData.kktSerial)
+                    toolBar.kktSelected(kktData)
+                }
             }
-        }
 
         contentItem: Text {
             leftPadding: 13
