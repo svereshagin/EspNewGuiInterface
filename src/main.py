@@ -107,7 +107,18 @@ def main():
     print(f"ℹ️  QML path: {qml_file}", flush=True)
     print(f"ℹ️  File exists: {os.path.exists(qml_file)}", flush=True)
 
-    engine.load(QUrl.fromLocalFile(os.path.abspath(qml_file)))
+    if hasattr(sys, "_MEIPASS"):
+        # Скомпилированный билд — грузим из ресурсов
+        qml_url = QUrl("qrc:/main.qml")
+        print("ℹ️  Loading from resources: qrc:/main.qml", flush=True)
+    else:
+        # Разработка — грузим с диска
+        qml_file = get_resource_path()
+        print(f"ℹ️  QML path: {qml_file}", flush=True)
+        print(f"ℹ️  File exists: {os.path.exists(qml_file)}", flush=True)
+        qml_url = QUrl.fromLocalFile(os.path.abspath(qml_file))
+
+    engine.load(qml_url)
 
     if not engine.rootObjects():
         print("💀 FAILED: no root objects", flush=True)
