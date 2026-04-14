@@ -1,0 +1,30 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <!-- Главный файл -->
+        <file alias="main.qml">main.qml</file>
+
+        <!-- QML компоненты -->
+        <file>components/ToolBar.qml</file>
+        <file>components/TspIot.qml</file>
+
+        <!-- Шрифты -->
+        <file>fonts/inter-bold.ttf</file>
+        <file>fonts/inter-regular.ttf</file>
+
+        <!-- Изображения assets -->
+        <file>assets/line_2.png</file>
+        <file>assets/line_2@2x.png</file>
+        <file>assets/line_3.png</file>
+        <file>assets/line_3@2x.png</file>
+        <file>assets/line_4.png</file>
+        <file>assets/line_4@2x.png</file>
+        <file>assets/line_5.png</file>
+        <file>assets/line_5@2x.png</file>
+        <file>assets/line_6.png</file>
+        <file>assets/line_6@2x.png</file>
+        <file>assets/line_7.png</file>
+        <file>assets/line_7@2x.png</file>
+
+    </qresource>
+</RCC>

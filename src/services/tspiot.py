@@ -37,18 +37,19 @@ class TSPIoTService:
             return reg_dto
 
         else:
-            while reg_dto.counter < 3 or reg_dto:
+            while reg_dto.counter < 3 or reg_dto.is_registered is not True:
 
                 service_result = self.get_instance_info(kkt_serial)
                 logger.info(service_result)
 
-                if service_result is not None and service_result.is_registered:
-                    logger.warning("Сервис уже зарегестрирован")
-                    reg_dto.message = "Сервис уже зарегестрирован"
+                # Если сервис уже зарегистрирован
+                if isinstance(service_result, TSPIoTInstanceInfoDTO) and service_result.is_registered:
+                    logger.warning("Сервис уже зарегистрирован")
                     reg_dto.is_registered = True
-                    break
+                    reg_dto.message = "Сервис уже зарегистрирован"
+                    return reg_dto
 
-                elif service_result == 204 or not service_result.is_registered:
+                elif (isinstance(service_result, int) and service_result == 204) or (isinstance(service_result, TSPIoTInstanceInfoDTO) and not service_result.is_registered):
                     logger.info(f"Получен ответ от оркестратора 204 - сервис ещё не создан\nПопытка создания сервиса {reg_dto.counter}")
                     create_esm_service_result = self.create_esm_instance(kkt_serial)
 
@@ -61,6 +62,10 @@ class TSPIoTService:
                     self.register_tspiot(kkt_serial,kkt_serial,fn_serial, kkt_inn)
                     end_time = time.time()
                     logger.info(f"⏱️ регистрация выполнена за {end_time - start_time:.4f} секунд")
+
+                if reg_dto.is_registered:
+                    return reg_dto
+
                 elif service_result is None:
                     reg_dto.counter+=1
         return reg_dto
@@ -70,7 +75,7 @@ class TSPIoTService:
         Полная информация о сервисе ESM
         """
         if is_test:
-            return TSPIoTInstanceInfoDTO(logPath='C:\\ProgramData\\esp\\esm\\um\\log', state='Зарегистрирован', clientPort=51401, version='1.6.1.0', licenses=[TSPIoTLicenseInfo(isActive=True, activeTill='2026-05-10 00:00:00', lastSync='2026-04-10 15:28:09')], regData=TSPIoTRegistrationData(tspiotId='469010be-3b89-4983-bc13-fd125bcf5a3f', gismtTspiotId='2cb9ba1d-a893-438e-b6c5-593db95ab641', kktSerial='00106327428745', fnSerial='9999078902018941', kktInn='9717169631', espToken='eyJ0eXAiOiJKV1QiLCJraWQiOiJLLTFhZWlnOTI1IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIwMDAwMDAwMDAxMDQwMDE0IiwianRpIjoiOGI0YmI3YjgtZDYwNS00N2I4LWIwMTItNjE5MmI2MDlkZjUyIiwiYXVkIjpbIkNBU0hERVNLX1NUQVRTIl0sImNpZCI6MjQzLCJybm0iOiIwMDAwMDAwMDAxMDQwMDE0Iiwiem5pZCI6IjAwMTA2MzI3NDI4NzQ1IiwiZm5pZCI6Ijk5OTkwNzg5MDIwMTg5NDEiLCJpbm4iOiI5NzE3MTY5NjMxIiwiY3RwIjoiTUdNIiwibmJmIjoxNzc1ODI0NTEzLCJleHAiOjE3NzcwMzQxNzN9.GruGqyfcy6gR3eXp-yARd3etIvM4zqNznFpTJrGZvzcV4jgucm-5p56KBgZslW4VwE9VH4DECbUsUyQjv94jse34SMWSu5bNrh01wmV2sLN8HIDpioZ69wA1CNILmx6bZsBU4ftfgCrrj7R3aWdWTslgMN4DlhLxuEdtSY71_7nbinOwp5Q7A7AkWg7m-rrI3rAqb09cWE5DhZnPEhBhlYlHWWxKnh9XEqeE9VCz1SznoZI1TnSKaGlc9NgL1EKSgNc7OsA1WKDYoBJHJ8Efgx82pu9ag6qUuj9nA7ddj6EscbZKkLO8TE0w-hM6xPamtouszMifzm72Vm6NoRUK8g'))
+            return TSPIoTInstanceInfoDTO(logPath='C:\\ProgramData\\esp\\esm\\um\\log', state='Не Зарегистрирован', clientPort=51401, version='1.6.1.0', licenses=[TSPIoTLicenseInfo(isActive=True, activeTill='2026-05-10 00:00:00', lastSync='2026-04-10 15:28:09')], regData=TSPIoTRegistrationData(tspiotId='469010be-3b89-4983-bc13-fd125bcf5a3f', gismtTspiotId='2cb9ba1d-a893-438e-b6c5-593db95ab641', kktSerial='00106327428745', fnSerial='9999078902018941', kktInn='9717169631', espToken='eyJ0eXAiOiJKV1QiLCJraWQiOiJLLTFhZWlnOTI1IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIwMDAwMDAwMDAxMDQwMDE0IiwianRpIjoiOGI0YmI3YjgtZDYwNS00N2I4LWIwMTItNjE5MmI2MDlkZjUyIiwiYXVkIjpbIkNBU0hERVNLX1NUQVRTIl0sImNpZCI6MjQzLCJybm0iOiIwMDAwMDAwMDAxMDQwMDE0Iiwiem5pZCI6IjAwMTA2MzI3NDI4NzQ1IiwiZm5pZCI6Ijk5OTkwNzg5MDIwMTg5NDEiLCJpbm4iOiI5NzE3MTY5NjMxIiwiY3RwIjoiTUdNIiwibmJmIjoxNzc1ODI0NTEzLCJleHAiOjE3NzcwMzQxNzN9.GruGqyfcy6gR3eXp-yARd3etIvM4zqNznFpTJrGZvzcV4jgucm-5p56KBgZslW4VwE9VH4DECbUsUyQjv94jse34SMWSu5bNrh01wmV2sLN8HIDpioZ69wA1CNILmx6bZsBU4ftfgCrrj7R3aWdWTslgMN4DlhLxuEdtSY71_7nbinOwp5Q7A7AkWg7m-rrI3rAqb09cWE5DhZnPEhBhlYlHWWxKnh9XEqeE9VCz1SznoZI1TnSKaGlc9NgL1EKSgNc7OsA1WKDYoBJHJ8Efgx82pu9ag6qUuj9nA7ddj6EscbZKkLO8TE0w-hM6xPamtouszMifzm72Vm6NoRUK8g'))
         else:
             return self.tspiot_agent.get_instance_info(kkt_serial)
 

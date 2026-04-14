@@ -37,8 +37,9 @@ class AsyncExecutor(QObject):
             **kwargs
     ):
         """Выполнить функцию асинхронно"""
-        if self._is_loading:
-            return False
+        print("IS LOADING:", self._is_loading)
+        # if self._is_loading:
+        #     return False
 
         self._set_loading(True)
         self._set_error("")

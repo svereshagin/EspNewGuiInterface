@@ -153,37 +153,14 @@ Rectangle {
                 verticalAlignment: Text.AlignTop
                 wrapMode: Text.WordWrap
             }
-            Shape {
-                id: rectangle_8248
 
-                x: 10
-                y: 50
-
-                height: 32
-                width: 234
-
-                ShapePath {
-                    id: rectangle_8248_ShapePath0
-
-                    fillColor: "#ffffff"
-                    fillRule: ShapePath.WindingFill
-                    strokeColor: "#000000"
-                    strokeWidth: 1
-
-                    PathSvg {
-                        id: rectangle_8248_ShapePath0_PathSvg0
-
-                        path: "M 0 0 L 234 0 L 234 32 L 0 32 L 0 0 Z"
-                    }
-                }
-            }
             Rectangle {
                 x: 10
                 y: 50
                 height: 32
                 width: 234
 
-                visible: tspiot_tspiotId === ""
+                visible: tspiot_state !== "Зарегистрирован"
                 color: isRegistering ? "#f0f0f0" : "#ffffff"
                 border.color: "#000000"
                 border.width: 1
@@ -1187,7 +1164,7 @@ Rectangle {
 
             rotation: -90
             source: Qt.resolvedUrl("assets/line_7.png")
-        }
+            }
         }
     }
     Component.onCompleted: AppStorage.load_kkt()

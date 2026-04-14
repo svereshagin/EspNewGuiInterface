@@ -98,7 +98,7 @@ pyinstaller --onefile --windowed `
     --hidden-import PySide6.QtQuickWidgets `
     --collect-data PySide6 `
     --paths . `
-    old_src/main.py
+    main.py
 
 # Готовый .exe будет в папке dist/
 ```
@@ -121,7 +121,7 @@ pyinstaller --onefile --windowed \
     --hidden-import PySide6.QtQuickWidgets \
     --collect-data PySide6 \
     --paths . \
-    old_src/main.py
+    main.py
 
 # 3. Упаковка в AppImage (опционально)
 # Скачать linuxdeployqt и создать AppImage

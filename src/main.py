@@ -30,6 +30,19 @@ from src.services.tspiot import TSPIoTService
 from src.storage.application_storage import AppStorage
 
 
+
+try:
+    from src.ui.whitelabel import resources_rc
+except ImportError:
+    # Если не скомпилированы, пробуем локальный импорт
+    try:
+        import resources_rc
+    except ImportError:
+        print("⚠️ Resources not compiled, will use filesystem")
+
+
+
+
 # Системный шум, который может просочиться сквозь rules
 _NOISE = (
     "(RT)", "syncAndRender", "QQuickWindowPrivate",
@@ -85,7 +98,7 @@ def main():
         kkt_service=kkt_service,
         tspiot_service=tspiot_service,
         cache_ttl_seconds=300,
-        is_test=True
+        is_test=False
     )
 
     engine.rootContext().setContextProperty("AppStorage", app_storage)

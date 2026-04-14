@@ -43,12 +43,12 @@ class TSPIoTNetwork(ApiClient):
     - получение статусов систем
 
     """
-    ENDPOINT = "/api/v1/TspIot.qml"
+    ENDPOINT = "/api/v1/tspiot"
     ESM_INFO_ENDPOINT = "/api/v1/instances/info"
     ESM_STATUS_ENDPOINT = "/api/v1/status/"
 
     def create_esm_service(self, data: TSPIoTRequestCreateInstance):
-        """Запрос на добавление сервиса ЕСМ /api/v1/TspIot.qml (POST)"""
+        """Запрос на добавление сервиса ЕСМ /api/v1/tspiot (POST)"""
         logger.debug("Создание ESM сервиса для kkt_serial=%s", data.kkt_serial)
 
         try:
@@ -64,7 +64,7 @@ class TSPIoTNetwork(ApiClient):
     def register_tspiot(self, data: TSPIoTRequestRegistration) -> TSPIoTRegistrationResponse:
         """
         Регистрирует TSPIOT
-        PUT -> "/api/v1/TspIot.qml"
+        PUT -> "/api/v1/tspiot"
         """
         logger.debug("Регистрация TSPIOT для kktSerial=%s", data.kktSerial)
         payload = {

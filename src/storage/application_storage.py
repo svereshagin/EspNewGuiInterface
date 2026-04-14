@@ -126,11 +126,25 @@ class AppStorage(QObject):
 
     @Slot(str, str, str)
     def start_registration(self, kkt_serial: str, fn_serial: str, kkt_inn: str):
+        logger.info("=== start_registration вызвана из QML ===")
+        logger.info(f"Параметры: kkt_serial={kkt_serial}, fn_serial={fn_serial}, kkt_inn={kkt_inn}")
+        logger.info(f"_is_registering={self._is_registering}")
+
         if self._is_registering:
+            logger.warning("Регистрация уже выполняется, выходим")
             return
+
         self._is_registering = True
+        logger.info("Установлен флаг _is_registering = True")
+
+        logger.info("Вызываем registrationStarted.emit")
         self.registrationStarted.emit(kkt_serial)
+        logger.info("registrationStarted.emit выполнен")
+
+        logger.info("Вызываем create_and_register_instance")
         self.create_and_register_instance(kkt_serial, fn_serial, kkt_inn)
+        logger.info(
+            "create_and_register_instance завершил выполнение (но не обязательно завершил асинхронную операцию)")
 
 
     # ─── Properties ─────────────────────────────────────────────
@@ -188,40 +202,58 @@ class AppStorage(QObject):
     #     """Принудительная перезагрузка статуса систем"""
     #     self.load_system_status(instance_id, reset=True)
 
-
     def create_and_register_instance(self, kkt_serial: str, fn_serial: str, kkt_inn: str, is_test=False):
         """
         Асинхронно создаёт и регистрирует инстанс TSPIoT
         """
-        def task():
-            """Выполнение в отдельном потоке через QRunnable"""
-            # Весь цикл создания и регистрации выполняется в сервисе
-            result = self._tspiot_service.create_and_registrate_service(
-                kkt_serial=kkt_serial,
-                fn_serial=fn_serial,
-                kkt_inn=kkt_inn,
-                is_test=is_test
-            )
-            return result
+        logger.info("=== create_and_register_instance вызван ===")
+        logger.info(f"Параметры: kkt_serial={kkt_serial}, fn_serial={fn_serial}, kkt_inn={kkt_inn}, is_test={is_test}")
 
         def on_success(result: tuple):
-            self._is_registering = False  # ← добавь
+            logger.info("=== on_success вызван ===")
+            logger.info(f"Результат: {result}")
+            self._is_registering = False
+            logger.info("_is_registering сброшен в False")
+
             success, message = result
+            logger.info(f"success={success}, message={message}")
+
+            logger.info(f"Вызываем registrationCompleted.emit с параметрами: {kkt_serial}, {success}, {message}")
             self.registrationCompleted.emit(kkt_serial, success, message)
+            logger.info("registrationCompleted.emit выполнен")
+
             if success:
+                logger.info("Регистрация успешна, загружаем обновлённые данные")
                 self.load_instances(reset=True)
                 self.load_instance_info(kkt_serial, reset=True)
+                logger.info("Данные загружены")
+            else:
+                logger.warning(f"Регистрация не удалась: {message}")
 
         def on_error(error_msg: str):
-            self._is_registering = False  # ← добавь
+            logger.error(f"=== on_error вызван: {error_msg} ===")
+            self._is_registering = False
+            logger.info("_is_registering сброшен в False из-за ошибки")
+            logger.info(f"Вызываем registrationCompleted.emit с ошибкой")
             self.registrationCompleted.emit(kkt_serial, False, error_msg)
+            logger.info("registrationCompleted.emit с ошибкой выполнен")
 
-        self._executor.execute(
-            func=task,
-            on_success=on_success,
-            on_error=on_error,
-            is_test=self.is_test
-        )
+        logger.info("Перед вызовом _executor.execute")
+        try:
+            self._executor.execute(
+                func=self._tspiot_service.create_and_registrate_service,  # ← передаём метод
+                on_success=on_success,
+                on_error=on_error,
+                kkt_serial=kkt_serial,  # ← параметр как именованный аргумент
+                fn_serial=fn_serial,  # ← параметр как именованный аргумент
+                kkt_inn=kkt_inn,  # ← параметр как именованный аргумент
+                is_test=is_test  # ← параметр как именованный аргумент
+            )
+            logger.info("_executor.execute успешно вызван")
+        except Exception as e:
+            logger.error(f"Ошибка при вызове _executor.execute: {e}", exc_info=True)
+            self._is_registering = False
+            raise
 
     def set_current_instance(self, instance_id: str):
         """Устанавливает текущий инстанс"""
