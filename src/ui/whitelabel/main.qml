@@ -1,10 +1,11 @@
 import QtQuick
 import QtQuick.Shapes
+import QtQuick.Controls
 import "components"
 
 
 
-Window {
+ApplicationWindow {
     width: 829
     height: 646
     visible: true

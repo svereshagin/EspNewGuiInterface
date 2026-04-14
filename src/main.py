@@ -117,13 +117,12 @@ def main():
         print(f"ℹ️  QML path: {qml_file}", flush=True)
         print(f"ℹ️  File exists: {os.path.exists(qml_file)}", flush=True)
         qml_url = QUrl.fromLocalFile(os.path.abspath(qml_file))
-
+    print("loading", qml_url)
     engine.load(qml_url)
 
     if not engine.rootObjects():
         print("💀 FAILED: no root objects", flush=True)
         sys.exit(-1)
-
     sys.exit(app.exec())
 
 
